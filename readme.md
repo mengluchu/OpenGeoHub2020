@@ -4,14 +4,14 @@ In this course, I will introduce different machine learning (regularized regress
 
 Deep learning is a very fast evolving and facinating fields, and the many strategies developed there can be adaped to ensemble learning methods. (This representation learning tool, showing its power in the era of big data, is actually not suitable for this air pollution prediction, considering the number of ground observations.)  
 
-The methods will be 
+Methods to be learned are: 
 - **Ridge**
 - **Lasso**
 - **Elastic Net**
 - **random forest**
 - **gradient boosting machine**
 - **xgboost**
-- **Neural Networks**
+- **Deep Neural Networks**
 
 
 The **Geohub.Rmd** file is the data analysis script that is used for the workshop. The **plot_RS.Rmd** shows the 3 remote sensing products. 
