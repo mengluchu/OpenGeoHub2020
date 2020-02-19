@@ -17,7 +17,7 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 # load dataset
-dataframe = read_csv("C:/Users/Lu000012/Documents/files/GLOBAL_LUR/merged.csv")
+dataframe = read_csv("C:/Users/Lu000012/Documents/Github/opengeohub2020/merged.csv")
 dataframe= dataframe.dropna
 dataframe.shape
 # split into input (X) and output (Y) variables
