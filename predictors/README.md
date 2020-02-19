@@ -1,7 +1,7 @@
-# Global Air Pollution mapping with LUR models
+# Geospatial predictor calculation
 
 
-Scripts to calculate predictor variables, and other preprocessing scripts. 
+Scripts to calculate predictor variables, particularly buffered variables, and other preprocessing scripts. 
 
 
 Contents of folder (and order of execution):
