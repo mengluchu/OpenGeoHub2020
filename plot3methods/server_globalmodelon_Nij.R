@@ -14,7 +14,7 @@ packages <- c( "raster", "dplyr", "devtools", "rgdal","Matrix","xgboost", "data.
 ipak(packages)
 install_github("mengluchu/APMtools")
 library(APMtools)
-sr =  stack("/data/lu01/NWA/allpredictors")
+sr =  stack("plot3methods/allpredictors")
 
 #use this to merge roads if needed: sr[[names(sr)[grepl("road_class",names(sr))]]]
 sr3 = sr[[names(sr)[grepl("road_class_3_",names(sr))]]]
