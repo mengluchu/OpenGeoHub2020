@@ -56,9 +56,13 @@ You might need to adapt path locations etc.
 
 * Calculating the predictors globally, at 25 m resolution requires supercomputation, or you may try using google earth engine, which may be the best way if you don't have many cpu cores. But at 100m resolution is probabaly doable at a local machine. 25 m resolution mapping can provide more opportunities for understanding road effects, but the bias from openstreetmap, as well as the number of ground monitors that are established close to roads, should be considered.  
 
-* This calculation uses pcraster software, for the setup, please refer to the pcraster installation website, http://pcraster.geo.uu.nl/quick-start-guide/, which, fortunately, should be simple:
-
+* This calculation uses pcraster software, for the setup, please refer to the pcraster installation website, http://pcraster.geo.uu.nl/quick-start-guide/, which should be simple but is python-version-dependent:
+1. create a conda environment
+2. check the pcraster version, which python version it is built on:
+conda create --name predictors python=3.6
+conda activate predictors
 conda install -c http://pcraster.geo.uu.nl/pcraster/pcraster -c conda-forge pcraster=4.3.0_rc1 
+conda install GDAL
 
 * Any suggestions and critisms are welcomed! 
 
