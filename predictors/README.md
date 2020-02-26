@@ -59,10 +59,10 @@ You might need to adapt path locations etc.
 * This calculation uses pcraster software, for the setup, please refer to the pcraster installation website, http://pcraster.geo.uu.nl/quick-start-guide/, which should be simple but is python-version-dependent:
 1. create a conda environment
 2. check the pcraster version, which python version it is built on:
-conda create --name predictors python=3.6
-conda activate predictors
-conda install -c http://pcraster.geo.uu.nl/pcraster/pcraster -c conda-forge pcraster=4.3.0_rc1 
-conda install GDAL
+* conda create --name predictors python=3.6
+* conda activate predictors
+* conda install -c http://pcraster.geo.uu.nl/pcraster/pcraster -c conda-forge pcraster=4.3.0_rc1 
+* conda install GDAL
 
 * Any suggestions and critisms are welcomed! 
 
