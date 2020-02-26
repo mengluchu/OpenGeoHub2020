@@ -61,8 +61,10 @@ You might need to adapt path locations etc.
 2. check the pcraster version, which python version it is built on:
 * conda create --name predictors python=3.6
 * conda activate predictors
+* conda install GDAL 
 * conda install -c http://pcraster.geo.uu.nl/pcraster/pcraster -c conda-forge pcraster=4.3.0_rc1 
-* conda install GDAL
+
+* note：install GDAL before pcraster to avoid conflictions.
 
 * Any suggestions and critisms are welcomed! 
 
