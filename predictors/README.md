@@ -41,9 +41,9 @@ You might need to adapt path locations etc.
   1. Check current osm file from planet.openstreetmap.org/pbf, edit the get_pbf.sh for the newest osm. 
   2. Run sh get_pbf.sh, the file will be downloaded to the current directory, the file is 50 G, for the global dataset. If you want to try a smaller area, e.g. by country, you may find it from geofabrik.
   3. Set the osm directory in landuse.py and road.py, run the scripts. This will extract elements from the osm map. 
-  4. In "setting.py", set the directory for osm gpkg file for road and industrial areas (data_source). Also, set the directory for the results. You can also set the cpus to calculate buffers, the road classes (road_classes) and the buffer sizes (road_buffersizes). 
+  4. In "setting.py", set the directory for osm gpkg file for road and industrial areas (data_source). Also, set the directory for the results. You can also set the cpus to calculate buffers, the road classes (road_classes) and the buffer sizes (road_buffersizes). You can set the parameter "cellsize" (in meters) for the resolution, radius_x (in degree) and radius y (in degree) for the extent of the map. The radius_x and radius_y are the halfside of the rectangular, in degree. For example, if you set radius_x = 0.1and radius_y = 0.1, the result will be roughly in a 10 km by 10 km tile. The "halo_x" (in degree) is to give an extended area for boarder pixels. If you want to calculate a 5 km buffer for each pixel, then the halo_x should be roughly 0.006
   5. Set the prediction centre in centre.csv file (longitude, latitude)
-  6. Run the predictor.py file, you can set the parameter "cellsize" (in meters) for the resolution, radius_x (in degree) and radius y (in degree) for the extent of the map. The radius_x and radius_y are the halfside of the rectangular, in degree. For example, if you set radius_x = 0.1and radius_y = 0.1, the result will be roughly in a 10 km by 10 km tile. The "halo_x" (in degree) is to give an extended area for boarder pixels. If you want to calculate a 5 km buffer for each pixel, then the halo_x should be roughly 0.006
+  6. Run the predictor.py file
 
 
 ## Details
