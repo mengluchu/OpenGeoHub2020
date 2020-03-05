@@ -141,17 +141,13 @@ inde_var=a$inde_var
  RMSE = function(m, o){
    sqrt(mean((m - o)^2))
  }
- opt <- function(x) {   ## Rosenbrock Banana function
+ opt <- function(x) {
    x1 <- x[1]
    x2 <- x[2]
    x3 <- x[3]
    x4 <- x[4]
    RMSE(y_train , (x1*df[,2]  +x2*df[,3]   + x3*df[,4]   +x4*df[,5]  ))
  }
-
- pl =  optim(c(0.9, 0.3,0.9, 0.1), opt)
- pl # value is the rmse of training  # convergence = 0 indicate sucessful convergence
- pl= pl$par
 
  # quasi Newton
  pl =  optim(c(0.9, 0.3,0.9, 0.1), opt, method = "BFGS")
@@ -161,8 +157,8 @@ inde_var=a$inde_var
  error_matrix(y_test, ensemble) # slightly worse
 
 
- # constrained bfgs
- pl =  optim(c(0.9, 0.3,0.9, 0.1), opt, method = "L-BFGS-B")
+ # only positive weight
+ pl =  optim(c(0.9, 0.3,0.9, 0.1), opt, method = "L-BFGS-B", lower = 0)
  pl # value is the rmse of training  # convergence = 0 indicate sucessful convergence
  pl= pl$par
  ensemble = pl[1]*tdf[,1]  +pl[2]*tdf[,2]   + pl[3]*tdf[,3]   +pl[4]*tdf[,4]
