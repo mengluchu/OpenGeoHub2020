@@ -1,3 +1,4 @@
+# Ensemble modeling
 #"Ensembling relies on the assumption that different good models trained independently are likely to be good for different reasons:each model looks at slightly different aspects of the data to make its predictions, getting part of the 'truth' but not all of it".
 
 COUN="world"
@@ -15,16 +16,6 @@ ipak(packages)
 install_github("mengluchu/APMtools")
 library(APMtools)
 data("merged")
-
-varstring = "ROAD|pop|temp|wind|RSp|OMI|eleva|coast|I_1|Tropo"
-
-set.seed(1)
-
-a= sampledf(merged,fraction = 0.8, COUN,grepstring_rm = "ID|LATITUDE|LONGITUDE|ROAD_0|geometry|countryfullname" )
-
-test = a$test
-training = a$training
-inde_var=a$inde_var
 
 
 rf_pre = function(variabledf,  numtrees = 2000, mtry = 33, y_varname = c("day_value", "night_value", "value_mean"),   test, training, grepstring = "ROAD|pop|temp|wind|Rsp|OMI|eleva|coast", ...) {
@@ -75,8 +66,8 @@ Brt_pre = function(variabledf, opti = F,  ntree = 1000, y_varname = c("day_value
     formu = as.formula(paste(y_varname, "~.", sep = ""))
     gbm1 = gbm(formula = formu, data = pre_mat, distribution = "gaussian", n.trees = ntree, interaction.depth = 6, shrinkage = 0.01, bag.fraction = 0.5)
     print(gbm1)
-    }
-   predict.gbm(gbm1, x_test, n.trees = ntree, type = "response")
+  }
+  predict.gbm(gbm1, x_test, n.trees = ntree, type = "response")
 }
 
 Lasso_pre = function(variabledf,  alpha = 1, y_varname = c("day_value", "night_value", "value_mean"), training, test, grepstring = "ROAD|pop|temp|wind|Rsp|OMI|eleva|coast") {
@@ -90,18 +81,59 @@ Lasso_pre = function(variabledf,  alpha = 1, y_varname = c("day_value", "night_v
   predict(cvfit, newx = as.matrix(pre_mat_test))
 
 }
+varstring = "ROAD|pop|temp|wind|RSp|OMI|eleva|coast|I_1|Tropo"
 
- xgb_day= xgb_pre(inde_var, max_depth =4, eta =0.02, nthread =2, nrounds = 2000, y_varname= c("day_value"),training=training, test=test, grepstring =varstring )
- brt_day= Brt_pre(inde_var,opti = F,vis1 = F, ntree =2000,  y_varname= c("day_value"), training=training, test=test, grepstring =varstring )
- rf_day = rf_pre(inde_var, vis1 = F,y_varname= c("day_value"), training=training, test=test, grepstring =varstring)
+set.seed(1)
 
- La_pre =  Lasso_pre(inde_var,alpha =1 , y_varname = "day_value",training=training, test=test,grepstring =varstring )
+a= sampledf(merged,fraction = 0.8, COUN,grepstring_rm = "ID|LATITUDE|LONGITUDE|ROAD_0|geometry|countryfullname" )
+
+test = a$test
+training = a$training
+inde_var=a$inde_var
+
+
+ xgb_test= xgb_pre(inde_var, max_depth =4, eta =0.02, nthread =2, nrounds = 2000, y_varname= c("day_value"),training=training, test=test, grepstring =varstring )
+ brt_test= Brt_pre(inde_var,opti = F,vis1 = F, ntree =2000,  y_varname= c("day_value"), training=training, test=test, grepstring =varstring )
+ rf_test = rf_pre(inde_var, vis1 = F,y_varname= c("day_value"), training=training, test=test, grepstring =varstring)
+
+ La_test =  Lasso_pre(inde_var,alpha =1 , y_varname = "day_value",training=training, test=test,grepstring =varstring )
 
  y_test = inde_var[test,"day_value"]
- error_matrix(y_test, brt_day)
- error_matrix(y_test, rf_day)
- error_matrix(y_test, xgb_day)
- #error_matrix(y_test, La_pre) # not optimal
+ error_matrix(y_test, brt_test)
+ error_matrix(y_test, rf_test)
+ error_matrix(y_test, xgb_test)
+ #error_matrix(y_test, La_test) # not optimal
 
- ensemble = (xgb_day + brt_day+ rf_day) /3
+ # just take the mean
+ ensemble = (xgb_test + brt_test+ rf_test) /3
  error_matrix(y_test, ensemble) # slightly better
+
+ ## what does Linear regression suggest to ensemble?
+ xgb_train= xgb_pre(inde_var, max_depth =4, eta =0.02, nthread =2, nrounds = 2000, y_varname= c("day_value"),training=training, test=training, grepstring =varstring )
+ brt_train= Brt_pre(inde_var,opti = F, ntree =2000,  y_varname= c("day_value"), training=training, test=training, grepstring =varstring )
+ rf_train = rf_pre(inde_var, y_varname= c("day_value"), training=training, test=training , grepstring =varstring)
+ La_train =  Lasso_pre(inde_var,alpha =1 , y_varname = "day_value",training=training, test=training ,grepstring =varstring )
+
+ # training and test on the same dataset for using LM to combine them
+ error_matrix(y_train,La_train)
+ error_matrix(y_train,xgb_train)
+
+ df =data.frame(y_train = y_train, xgb_day = xgb_train, brt_day=brt_train,rf_day=rf_train, La_day = as.vector(La_train ))
+ plot(df)
+ head(df)
+ y_train = inde_var[training,"day_value"]
+ m = lm(y_train~., data = df)
+ coeff = coef(lm(y_train~., data = df))
+
+ #test on test dataset
+ xgb_test= xgb_pre(inde_var, max_depth =4, eta =0.02, nthread =2, nrounds = 2000, y_varname= c("day_value"),training=training, test=training, grepstring =varstring )
+ brt_test= Brt_pre(inde_var,opti = F, ntree =2000,  y_varname= c("day_value"), training=training, test=training, grepstring =varstring )
+ rf_test = rf_pre(inde_var, y_varname= c("day_value"), training=training, test=training , grepstring =varstring)
+ La_test =  Lasso_pre(inde_var,alpha =1 , y_varname = "day_value",training=training, test=training ,grepstring =varstring )
+ tdf = data.frame(xgb_day = xgb_test, brt_day = brt_test, rf_day = rf_test,La_day = as.vector(La_test))
+ plot(cbind(y_test,tdf))
+ #ensemble = xgb_test *(0.5*(coeff[2]/coeff[4]) ) + brt_test*((1-0.5*(coeff[2]/coeff[4])))
+
+ ensemble = predict (m, newdata = tdf)
+ error_matrix(y_test, ensemble) # slightly worse
+
