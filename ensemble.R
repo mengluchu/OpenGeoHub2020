@@ -1,4 +1,4 @@
-
+#"Ensembling relies on the assumption that different good models trained independently are likely to be good for different reasons:each model looks at slightly different aspects of the data to make its predictions, getting part of the 'truth' but not all of it".
 
 COUN="world"
 
