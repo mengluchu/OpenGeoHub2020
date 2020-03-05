@@ -69,7 +69,7 @@ class CalcPredictor(StaticModel, MonteCarloModel):
     pass
 
   def premcloop(self):
-    self.omi_centres = numpy.loadtxt('centres.csv', delimiter=',')
+    self.omi_centres = numpy.loadtxt(settings.coord_centre, delimiter=',')
 
 
   def make_directories(self):
@@ -699,7 +699,7 @@ class CalcPredictor(StaticModel, MonteCarloModel):
 
 
 # Cells to process
-centres = numpy.loadtxt('centres.csv', delimiter=',')
+centres = numpy.loadtxt(settings.coord_centre, delimiter=',')
 
 nr_samples = None
 
@@ -719,12 +719,10 @@ buffersizes = settings.road_buffersizes
 
 
 # Target cell size
-cellsize = 25.0
-
-
-radius_x = 0.5
-radius_y = 0.5
-halo_x = 0.06
+cellsize = settings.cellsize # in m, can put higher value for testing
+radius_x = settings.radius_x # degree, half side of the square
+radius_y = settings.radius_y
+halo_x = settings.halo_x # 5km for the boarder
 halo_y = halo_x
 
 result_dir = settings.result_dir
