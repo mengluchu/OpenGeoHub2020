@@ -1,0 +1,133 @@
+ 
+ 
+ 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path=paste0('hyperparametertunning',  "/"),
+                      echo=T, warning=FALSE, message=FALSE, dev = "pdf")
+```
+
+ 
+
+Required packages
+```{r, include=F}
+ipak <- function(pkg){
+ 
+   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+   if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE , repos='http://cran.muenster.r-project.org')
+  sapply(pkg, require, character.only = TRUE)
+}
+packages <- c( "dplyr",  "devtools", "ranger", "gbm","xgboost", "data.table", "vcd","Matrix","mlr3","tmap", "sf","spgwr", "ggplot2", "ggtheme","tidyr","tmap", "gstat", "caret")
+ipak(packages)
+#install_github("mengluchu/APMtools")
+library(APMtools)
+ 
+ 
+data(merged)
+merged  = merge_roads(merged,c(3,4,5), keep = F)
+merged = merged%>%dplyr::select(-day_value,-night_value)
+```
+  
+  
+ 
+
+Hyperparameter tunning using caret (set the eval = T to run the following block. It takes several minutes so I made eval=False)
+
+XGB
+Parameter tunned:
+* **subsample**
+* **gamma**
+* **eta**
+* **max_depth**
+* **nrounds**
+RMSE was used to select the optimal model using the smallest value. During the hyperparameter tuning process, the **subsample** is set to 0.7, meaning 0.7\% of the training data were used each time. The parameters tuned are: Minimum loss reduction required to make a further partition on a leaf node of the tree (**gamma**). The larger gamma is, the more conservative the algorithm will be. The searching range for gamma is 0,1; the searching range for the learning rate (**eta**) is from 0.05 to 0.2, at a step of 0.05; the number of trees (**nrounds**) is from 300 to 2000, with a step of 50, and the maximum tree depth (**max_depth**) from 3-5. It is shown that the gamma has a strong impact on the optimal learning rate, higher gamma favors a lower learning rate. Increading the max_depth and nrounds affect only slightly the RMSE.
+
+The final values used for the model were nrounds = 700, max_depth = 4, eta= 0.05, gamma = 1, colsample_bytree = 1, min_child_weight = 1 and subsample = 0.7.
+
+
+```{r, xgbhp, eval=T}
+#install.packages("caret")
+#library(caret)
+xgboostgrid = expand.grid(nrounds = seq(300, 2000, by = 50), max_depth = 3:5, eta = seq(0.05, 0.2, by = 0.05),gamma =  1,
+  colsample_bytree = 1,
+  min_child_weight = 1,
+  subsample = 0.7) 
+#gamma: Minimum loss reduction required to make a further partition on a leaf node of the tree. The larger gamma is, the more conservative the algorithm will be.
+
+trainControl <- trainControl(method="cv", number=5, savePredictions = "final", allowParallel = T) #5 - folds
+# train the model
+model <- train(value_mean~., data=merged, method="xgbTree", trControl=trainControl, tuneGrid =xgboostgrid)
+ 
+model
+ggplot(model)
+ggsave("xgboosttunning.png")
+```
+
+Random Forest
+
+Parameter tunned:
+* **mtry**
+* **min.node.size**
+The split rule is set to "variance". The values tunned are the number of variables sampled (mtry) and the minimume node size (min.node.size, i.e. the minimum number of observations in the leaf), with the searching range from 6 to 40. The final values used for the model were mtry = 24 and min.node.size = 5. Both the mtry and minmnode.size has a strong impact on RMSE. 
+
+```{r, rghp, eval=T}
+
+#install.packages("e1071")
+#library(caret)
+rfgrid = expand.grid(mtry = (3:20)*2, splitrule = "variance",
+  min.node.size = c(5, 20))
+#gamma: Minimum loss reduction required to make a further partition on a leaf node of the tree. The larger gamma is, the more conservative the algorithm will be.
+
+trainControl <- trainControl(method="cv", number=5, savePredictions = "final", allowParallel = T) #5 - folds
+# train the model
+model <- train(value_mean~., data=merged, method="ranger", trControl=trainControl, tuneGrid =rfgrid)
+model
+ggplot(model)
+ggsave("rftunning.png")
+```
+
+GBM
+
+parameter tunned:
+* tree depth
+* number of trees
+* learning rate
+The best model is tree depth = 8, number of trees >2000, learning rate = 0.01
+```{r gbmhy}
+
+caretGrid <- expand.grid(interaction.depth=seq(3, 8, by =1), n.trees = (5:20)*100,
+                         shrinkage=c(0.1, 0.05, 0.01),
+                         n.minobsinnode=c(5 ))
+metric <- "RMSE"
+trainControl <- trainControl(method="cv", number=5)
+
+gbm.caret <- train(value_mean~ ., data= merged, distribution="gaussian", method="gbm",
+                   trControl=trainControl, verbose=FALSE,
+                   tuneGrid=caretGrid, metric=metric, bag.fraction=0.6)
+gbm.caret 
+ggplot(gbm.caret )
+ggsave ("gbm_high.png")
+```
+
+
+```{r, eval=F}
+library(mlr3)
+ #Searching grid: mlr3 seems hard to use now due to lacking in a good tutorial
+listLearners("regr")
+learner = makeLearner("regr.xgboost")
+learner$par.set
+#tune_ps <- 
+#  paradox::ParamSet$new(list(
+  # The number of trees in the model (each one built sequentially)
+#   ParamDbl$new("nrounds", lower = 300, upper = 1000),
+  # number of splits in each tree
+#     ParamInt$new("max_depth", lower = 3, upper = 5),
+  # "shrinkage" - prevents overfitting
+# ParamDbl$new("eta", lower = .05, upper = .2),
+  # L2 regularization - prevents overfitting
+#  ParamDbl$new("lambda", lower = -1, upper = 0, trafo = function(x) 10^x)
+#)
+```
+
+ 
+ 

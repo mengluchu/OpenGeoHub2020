@@ -5,5 +5,7 @@ https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environme
 3) install packages:
    conda install / pip install, use conda install whenever possible
 3.1) packages: keras, Tensorflow, numpy, pandas, matplotlib
-4) install spyder: conda install spyder
+Note: only anaconda Tensorflow is scalable. 
+
+4) install spyder or Jupyter notebook: conda install spyder
 5) open spyder from conda environment: conda spyder
