@@ -15,7 +15,7 @@ Deep learning is a very fast evolving and facinating fields, many strategies, ar
 - **Deep Neural Networks** 
   - point-based
   - convolutional neural networks: Self-defined and recently development 
-- **Mixed effect models 
+- **Mixed effect models** 
 
 ## Course Material:
 ### The *R_script* folder 
