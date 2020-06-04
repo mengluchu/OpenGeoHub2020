@@ -19,30 +19,39 @@ After this course, you will 1) become an efficient modeller (using a variety of 
   - point-based
   - convolutional neural networks: Self-defined; recently developed 
 
-## Scripts:
+## The *R_script* folder 
+contains 4 sub-folders: 
+ 
 
-- Data Visualization 
+- Data Visualize: visualizing Satellite imagery and the OpenAQ API.
   - **plot_RS.Rmd**: visualize the 3 remote sensing products.
   - **openaq.Rmd** : querying open openaq data using R API 
 
-- Data exploration and tool file
-  - **Geohub.Rmd**: data analysis script that includes a variety of tools for data exploration and modeling. You can explore the data and analyse modeling results, for example looking at the scatterplots, spatial correlations, partial dependence plot, importance plot. You can also see how the machine learning functions are parameterized and used for modelling, besides the deep neural networks, which is implemented in Python. 
+- Introduction
+  - **Geohub_2020.Rmd**: data analysis script that includes a variety of tools for data exploration and modeling. You can explore the data and analyse modeling results, for example looking at the scatterplots, spatial correlations, partial dependence plot, importance plot. You can also see how the machine learning functions are parameterized and used for modelling, besides the deep neural networks, which is implemented in Python. 
 
-- Cross validation, mapping, further analysis
+- modeling_process: the modelling process from hyperparameter optimization, cross validation, to mapping.
 
   - **Glo_hyp_tun.Rmb**: hyperparmeter tunning for the xgboost, random forest, and gradient boosting machine, using grid search and R caret package.
   - **Glo_vali_map_compare** : the models are validated using bootstrapping (eval set to false, if you want to try it to yourself it takes about 10 minutes), the variable importance are averaged over the bootstrapped rounds. The models are used to make predictions (map) in a small region. The prediction results are further compared with mobile sensor measurements (air monitor stations on board a carrier-bike).
 
-- Small experiements
+- Others: Consists of small experiements to deepen the understandings of Machine learning.
   - **differences between ML and statistics**
-  - **ensemble**: ensemble multiple machine learning models, which often could give the best results
+  - **ensemble**: ensemble multiple machine learning models, which often could give the best results.
+
+## The *Python* folder
+The predictor calculation and deep learning are implemented in Python, due to some benefits over R -- some tools are currently only developed in Python, and most people in the deep learning community use python. In this folder there is a note about how to start using conda environment for people new to python.   
+
+This folder contains two subfolders:
+
+- deep learning
+  two methods are implemented: point-based and convolutional based. Please go to the folder for more info. 
   
-- Predictor calculation
-  - **predictors**: In this study, we used buffered variables -- variables aggregated over buffers of various sizes. The roads and industry variables are calcualted from OpenStreetMap. Scripts to downloading OpenStreetMap data, pre-processing, and calculate buffers are included in this folder. Please refer to the README file in the foler for more details. You can also visit our GitHub page to reproduce all the predictor variables, or calculate your own predictors. I believe this will greatly faciliate relevant research, especially studies starting from scratch. 
+- calc_predictors
+  In this study, we used buffered variables -- variables aggregated over buffers of various sizes. The roads and industry variables are calcualted from OpenStreetMap. Scripts to downloading OpenStreetMap data, pre-processing, and calculate buffers are included in this folder. Please refer to the README file in the foler for more details. You can also visit our GitHub page to reproduce all the predictor variables, or calculate your own predictors. I believe this will greatly faciliate relevant research, especially studies starting from scratch. 
  
 - Other folders:
   - **slides**: the slides for the plenary and workshop in the afternoon
   - **output**: some output saved from running the Geohub.Rmd
-  - **predict_tiles**: functions and dataset for making predictions (mapping) in a (10km by 10km) example region.
-  - **Satelite**: the remote sensing products
+  - **rasters**: remote sensing products and a 1 degree by 1 degree tile of all the predictors for mapping and visual inspection.
  

@@ -1,0 +1,157 @@
+---
+title: "NLDE crossvalidation hourly 9"
+output:
+  html_document:
+    df_print: paged
+---
+ 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path=paste0('global_crossvali',"/"),
+                      echo=F, warning=FALSE, message=FALSE, dev = "png", include = T)
+```
+ 
+Required packages
+```{r, include=F}
+ipak <- function(pkg){
+ 
+   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+   if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE , repos='http://cran.muenster.r-project.org')
+  sapply(pkg, require, character.only = TRUE)
+}
+packages <- c( "devtools", "dplyr","data.table" , "ggplot2" , "RColorBrewer", "raster", "rasterVis", "rgdal","Matrix","xgboost",  "glmnet", "ranger", "randomForest"  
+,"tidyverse" )
+ipak(packages)
+install_github("mengluchu/APMtools") 
+ 
+library(APMtools)
+data(merged_nightlight)
+```
+
+```{r}
+y_var = "value_mean"
+
+merged = merged_nightlight
+merged = merge_roads(merged,c(3,4,5), keep = F)
+merged= na.omit(merged)
+
+```
+
+ 
+```{r}
+prestring =  "ROAD|pop|temp|wind|RSp|OMI|eleva|I_|ni_light|Tropo" 
+varstring = paste(prestring,y_var,sep="|")
+```
+
+```{r,eval=FALSE}
+set.seed(1)
+data1 = subset_grep(merged, varstring)
+data3 = data2%>%dplyr::select(-ni_light)
+
+ranger(value_mean~., data = data2, num.trees =    1000 )
+ranger(value_mean~., data = data3, num.trees =    1000 )
+attach(data1)
+summary(lm(value_mean~ni_light ))
+summary(lm(value_mean~Tropomi_2018+ROAD_2_100+pop5k*ni_light))
+summary(lm(ni_light~pop5k ))
+detach(data1)
+
+ data2 = data1%>%filter(ni_light<50)
+summary(lm(value_mean~ni_light, data=data2))
+summary(lm(ni_light~ROAD_M345_5000, data=data2))
+summary(lm(value_mean~Tropomi_2018+ROAD_2_100+pop5k*ni_light, data = data2))
+summary(lm(ni_light~Tropomi_2018, data=data2))
+ with(data2,plot(ni_light, pop5k) )
+ with(data2,plot(ni_light, value_mean) )
+ with(data2,plot(value_mean, Tropomi_2018) )
+ with(data2,plot(ni_light, ROAD_M345_5000) )
+ with(data2,plot(ni_light, ROAD_2_5000) )
+ with(data2,plot(ni_light, ROAD_1_5000) )
+ 
+```
+ 
+Variable importance: 20-times bootstrapping
+```{r, eval=T}
+
+Impor_val =  function(n,df, method , y_var  ) {
+
+  set.seed(n)
+  smp_size <- floor(0.8 * nrow(df))
+
+training<- sample(seq_len(nrow(df)), size = smp_size)
+test = seq_len(nrow(df))[-training] 
+ 
+ 
+methodID = switch(method,  "xboost"=1,"rf" =2, "gb"=3) 
+
+df = switch(methodID,  
+            xgboost_imp (variabledf= df, y_varname= y_var, max_depth =3, gamma=1, eta =0.05, nthread = 4, nrounds = 636, training=training, test=test, grepstring =varstring ),  
+            rf_imp(df, y_varname= y_var, training=training, test=test, grepstring =varstring,mtry = 24, numtrees = 1000),
+            Brt_imp (df, opti = F,   ntree= 2000, y_varname= y_var, training=training, test=test,  grepstring =varstring)
+
+) 
+return(df)
+} 
+ Vxb = data.frame(lapply(1:20, Impor_val, df= merged, "xboost" , y_var =y_var))
+ Vrf = data.frame(lapply(1:20, Impor_val, df = merged, "rf" , y_var = y_var)) 
+
+mimpVrf = apply(Vrf, 1, median)
+mimpxb = apply(Vxb, 1, median)
+ 
+ 
+xb = names(mimpxb[order(mimpxb,decreasing = T)]  )[1:20]
+rf = names(mimpVrf[order(mimpVrf,decreasing = T)] ) [1:20]
+vimp=cbind(rank = 1:20, xgboost = xb, randomforest = rf)
+#install.packages("stargazer")
+library(stargazer)
+stargazer(vimp)
+```
+
+Crossvalidation: 20-times bootstrapping
+
+```{r, eval=T}
+#V2= c("P_LM_NO_OMI_day","P_LM_with_OMI_day","P_LM_night","P_Lasso_day","P_lasso_night", "P_rf_day","P_rf_night","P_ctree_day")
+ #for ( i in 1:10)
+crossvali =  function(n,df, y_var) {
+smp_size <- floor(0.8 * nrow(df)) 
+set.seed(n)
+training<- sample(seq_len(nrow(df)), size = smp_size)
+test = seq_len(nrow(df))[-training] 
+
+P_rf = rf_LUR(df, numtrees =  1000, mtry = 14, vis1 = F,y_varname= y_var, training=training, test=test, grepstring =varstring)
+P_xgb= xgboost_LUR(df, max_depth =3, gamma=1, eta =0.05, nthread = 4, nrounds = 200, y_varname= y_var,training=training, test=test, grepstring =varstring)
+P_Lasso =  Lasso(df,alpha =1 , vis1  = F,y_varname = y_var,training=training, test=test,grepstring =prestring )
+ 
+V = cbind(P_rf, P_xgb, P_Lasso)
+} 
+V2 = lapply(1:20, df = merged, y_var = y_var,crossvali)
+V3 = data.frame(V2)
+#save(V3, file = paste0("V3.rdata"))
+```
+ 
+```{r, eval=T}
+#library(RColorBrewer)
+nvaria = ncol(V2[[1]])
+F1 = function(m, f=quote(summary)) {  apply(V3[, seq(m,ncol(V3), by =nvaria)], 1, f) }
+
+plotresult = function(m0, DorN = c("mean of 20 times")){
+m1 = melt(t(m0))
+ 
+
+ggplot(m1, aes(Var2, value))+ geom_bar(stat = "identity",aes(fill = Var1),position = "dodge")+
+  xlab("methods") + ylab("Accuracy") +
+  ggtitle(paste0("bootstrap sub-sampling cross-validation: ", DorN)) +
+  theme_bw()+theme(axis.text=element_text(size=15),legend.text=element_text(size=20),axis.title=element_text(size=15,face="bold"))+
+    scale_fill_brewer(palette="Set2")  + theme(legend.title = element_blank()) 
+}
+
+library(stargazer)
+meanvali = data.frame(sapply(1:nvaria, F1,  mean)) 
+names( meanvali) = dimnames(V2[[1]])[[2]]
+m0 = data.frame(t(meanvali))
+row.names(m0) = c(  "XGB", "RF", "Lasso")
+#m0$type1 = c(rep("day", 6), rep("night",5))
+m0
+stargazer(t(m0)) 
+plotresult(m0) 
+```
