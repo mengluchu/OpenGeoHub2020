@@ -6,7 +6,7 @@ In this course, I will introduce the whole global air pollution modelling proces
 
 Deep learning is a very fast evolving and facinating fields, many strategies, architectures, concepts have been developed. You may learn in the workshop that it is a powerful representation learning tool that is a game changer in computer vision, which means also in many areas of remote sensing, particulaly in instance segmentation, localization, image maching, showing its great power in the era of big data. What about deep learning in air pollution mapping? The buergeoning data and algorithms may provide us an unprecedented opportunity.
 
-** After this course, you will 1) learn a variety of machine learning algorithms; 2) become an efficient modeller; 3) understand/implement/use the newest algorithms in machine learning and (hopefully) also be interested in challenges in global prediction problems **.
+**After this course, you will 1) learn a variety of machine learning algorithms; 2) become an efficient modeller; 3) understand/implement/use the newest algorithms in machine learning and (hopefully) also be interested in challenges in global prediction problems**.
 
 ## Methods to be learned are: 
 - **Model Regularization** (Ridge; Lasso; Elastic Net; XGBoost, Deep Neural Networks)
