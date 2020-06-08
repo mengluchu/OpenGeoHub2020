@@ -484,7 +484,9 @@ grid.arrange(p1, p2, p3, pd1, pdp2, ncol = 2)
 
 ###### Mixed effect models
 
-Though we used multiple "background variables" (e.g. climate, population) trying to discover hirarchical relationships, the models introduced above does not explicitly model the hirarchical relationships (e.g road effects within a country). For example, the NO2-road density relationships may be heterogenous between countries due to different emission regulations, fuel standards (e.g. Brazil use biof-fuels), as well as the sampling scheme (the geographically distribution) of air monitoring stations. Mixed-effect models (ME) have been developed specificaly to model hirarchical relationships -- data are clustred within higher level clusters. ME can be seen as a special case of Bayetian Hirarchical models.   
+Though we used multiple "background variables" (e.g. climate, population) trying to discover hirarchical relationships, the models introduced above does not explicitly model the hirarchical relationships (e.g road effects within a country). For example, the NO2-road density relationships may be heterogenous between countries due to different emission regulations, fuel standards (e.g. Brazil use biof-fuels), as well as the sampling scheme (the geographically distribution) of air monitoring stations. Mixed-effect models (ME) have been developed specificaly to model hirarchical relationships -- data are clustred within higher level clusters. 
+
+ME can be seen as a special case of the hierarchical Bayesian model, which assumes the random effect coefficients being drawn from some unknown distribution.    
 
 The variables are scaled (mean 0, std 1) so it will be easy for the model to find relationships.  
 
