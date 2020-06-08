@@ -8,10 +8,9 @@ output:
     fig_width: 12
 ---
 
-### outline 
-0. structure
+### outline  
 1. Data: dataset, preprocessing, visualisation,
-2. priminarly examination: paired correlation and spatial correlation, piared R squared, scatterplot
+2. priminarly examination: paired correlation and spatial correlation, scatterplot
 3. machine learning methods: model parameter tunning, interpretation
 
 
@@ -27,7 +26,6 @@ Required packages
 
 ```{r, include=T}
 ipak <- function(pkg){
- 
    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
    if (length(new.pkg)) 
     install.packages(new.pkg, dependencies = TRUE)
@@ -36,7 +34,7 @@ ipak <- function(pkg){
 #repos='http://cran.muenster.r-project.org'
 
 stdata = c("sp", "sf", "raster")
-Stat_methods = c("glmnet", "ranger", "gbm", "xgboost", "party", "caret", "gstat")
+Stat_methods = c("lme4", "glmnet", "ranger", "gbm", "xgboost", "party", "caret", "gstat")
 visual = c("RColorBrewer", "ggplot2", "corrplot", "tmap", "leaflet", "mapview","leafem", "pdp", "vip", "DT", "sparkline")
 map = c("maptools")
 tidy = c("devtools", "dplyr",  "tidyr", "reshape2", "knitr")
@@ -47,7 +45,7 @@ ipak(packages)
 ```
 
 
-Auxilary package with preprocessed data in dataframe.
+[APMtools](https://github.com/mengluchu/APMtools) is an R package providing datasets for global air pollution modelling and tools to streamline and facilitate air pollution mapping using statistical methods. Please have a [read](https://github.com/mengluchu/APMtools) of it on Github.
 
 ```{r}
 install_github("mengluchu/APMtools")
@@ -55,7 +53,8 @@ library(APMtools)
 ls("package:APMtools")
 ```
 
-If the above is not successeful for MacOS users, the following and a restart of R may be needed 
+Load data: 
+
 ```{r}
 #gd = fread("~/Documents/GitHub/Global mapping/2020_06_world/stations_20200602.csv")
 #avg = fread("~/Documents/GitHub/Global mapping/oaqEUAUCAUS.csv")
@@ -90,28 +89,26 @@ for the dataset merged.rda:
 *8*. OMI_mean_filt: OMI column density, 2017 annual average.    
 *9*. nightlight_size: nightlight VIIRS data in original resolution (500 m) and various buffer sizes. 
 
-NO2 annual concentration, all the units are converted to ug/m3. In the data display later you can see countries with different units. 
+NO2 annual concentration, all the units are converted to ug/m3 (micro per cubic meter). In the data display later you can see countries with different units. 
 
 ```{r}
-g2 %>% dplyr::select(value_mean ) %>% summary()
+global_annual %>% dplyr::select(value_mean ) %>% summary()
 #datatable(g2, rownames = FALSE, filter = "top", options = list(pageLength = 5, scrollX = T))
 ```
 
 
 Merge roads of different road types, here 3, 4, 5, the road length of these road types are aggregated. The original road types are substituted (with keep = T, they are remained). 
-
  
 ```{r mergeroads}
-merged_mr = merge_roads(g2, c(3, 4, 5), keep = F) # keep = T keeps the original roads. 
+merged_mr = merge_roads(global_annual, c(3, 4, 5), keep = F) # keep = T keeps the original roads. 
 names(merged_mr)
-#numeric country
-#inde_var$country=as.numeric(inde_var$country)
 ```
 
 
 ### Visualization
 
 Visualize with tmap: convenient
+
 ```{r}
  
 locations_sf = st_as_sf(merged_mr, coords = c("long","lat"))
@@ -120,6 +117,17 @@ osm_valuemean = tm_shape(locations_sf) +
      popup.vars = c("value_mean" )) + tm_view(basemaps = c('OpenStreetMap'))
 #+tm_shape(lnd)+tm_lines()
 tmap_save(osm_valuemean, "NO2mean.html")
+
+```
+
+```{r eval=F}
+climatemissing= merged_mr%>%filter(is.na(wind_speed_10m_10))
+locations_sf = st_as_sf(climatemissing, coords = c("long","lat"))
+osm_valuemean = tm_shape(locations_sf) +
+  tm_dots( "value_mean", col = "value_mean", size = 0.05,title = "NO2 value",
+     popup.vars = c("value_mean" )) + tm_view(basemaps = c('OpenStreetMap'))
+#+tm_shape(lnd)+tm_lines()
+tmap_save(osm_valuemean, "climatemissing.html")
 ```
 
 Visualize with leaflet: more control.
@@ -139,12 +147,11 @@ Boxplot
 countryname = paste(merged_mr$country, countrycode(merged_mr$country, 'iso2c', 'country.name'), sep = ":") 
 
 #tag country with ppm 
-
 # use the median for colour
 mergedmedian = merged_mr %>% group_by(country) %>% mutate(median =  median(value_mean, na.rm = TRUE)) 
 nrow(merged_mr)
 merged_mr = merged_mr %>% group_by(country) %>% mutate(count1 = n())
- merged_mr$count1
+ 
 countryname_s_e=ifelse( merged_mr$country %in% countrywithppm[countrywithppm %in% merged_mr$country], paste(countryname, "*", sep = ""), countryname)
 
 mergedmedian$countryfullname = paste0(countryname_s_e," (",merged_mr$count1 ,")")
@@ -156,33 +163,28 @@ bp2 <- ggplot(mergedmedian, aes(x=countryfullname, y=value_mean, group=country))
 #   scale_color_brewer(direction = 1)
  
 print(bp2 + ylim(0, 100))
-ggsave("boxplot.png")
+#ggsave("boxplot.png")
 ```
-
-
  
- 
-Plot the paired correlation, for  road predictors, population, Tropomi.  For DE, CN, and world
+Plot the paired correlation, for  road predictors, population, Tropomi. Compare the correlation graphs between Germnany and world. The correlation between NO2 concentration and predictor variables are much lower, calling for a non-linear method to model the hetrogeneities between countries. 
  
 ```{r}
 merged_mr %>% na.omit %>% filter(country == "DE") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
-merged_mr %>% na.omit %>% filter(country == "US") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
-merged_mr %>% na.omit %>% filter(country == "CA") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
-merged_mr %>% na.omit %>% filter(country == "CN") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
+#merged_mr %>% na.omit %>% filter(country == "US") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
+#merged_mr %>% na.omit %>% filter(country == "CA") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
+#merged_mr %>% na.omit %>% filter(country == "CN") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
 
 merged_mr %>% na.omit  %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7) 
 ```
 
 
-Spatial dependency
+Inspecting spatial dependency using the variogram, assuming cutoff is 1 degree (111 km at nadir).
 ```{r}
 grd_sp <- as_Spatial(locations_sf)
  
 dt.vgm = variogram(value_mean~1, grd_sp, cutoff=   1)
 plot(dt.vgm)
 
-
- 
 #Moran I test
 #install.packages("ape", dependencies = TRUE)
 #library(ape)
@@ -196,12 +198,11 @@ plot(dt.vgm)
 #Moran.I(merged_mrf$value_mean, na.rm = T, no2.inv) 
 ```
 
-
+Inspecting spatial correlation within countries.
 ```{r countryvario}
 countryvariogram = function(COUN, cutoff){
 loca =  locations_sf%>%filter(country == COUN)
 grd_sp <- as_Spatial(loca)
-
 dt.vgm = variogram(value_mean~1, grd_sp, cutoff = cutoff)
 plot(dt.vgm)
 }
@@ -217,7 +218,6 @@ For the illustration purpose,  we simply remove missing data, there are not many
 
 ```{r}
 inde_var = merged_mr %>%na.omit() # 70 variables
-names(inde_var) 
 ```
 
 #### Scatterplot
@@ -253,7 +253,6 @@ XGBoost is surely popular, as it won the Kaggle (machine learning prediction) co
 
 ```{r}
 inde_var = inde_var%>%ungroup()%>%dplyr::select(-country)
-str(inde_var)
 ```
 
 #### Hyperparameter tuning using R Caret package.
@@ -483,4 +482,82 @@ grid.arrange(p1, p2, p3, pd1, pdp2, ncol = 2)
 
 ```
 
+###### Mixed effect models
+
+Though we used multiple "background variables" (e.g. climate, population) trying to discover hirarchical relationships, the models introduced above does not explicitly model the hirarchical relationships (e.g road effects within a country). For example, the NO2-road density relationships may be heterogenous between countries due to different emission regulations, fuel standards (e.g. Brazil use biof-fuels), as well as the sampling scheme (the geographically distribution) of air monitoring stations. Mixed-effect models (ME) have been developed specificaly to model hirarchical relationships -- data are clustred within higher level clusters. ME can be seen as a special case of Bayetian Hirarchical models.   
+
+The variables are scaled (mean 0, std 1) so it will be easy for the model to find relationships.  
+
+```{r}
+set.seed(3)
+merged_mr = merged_mr%>%drop_na()
+smp_size <- floor(0.8* nrow(merged_mr))
+training<- sample(seq_len(nrow(merged_mr)), size = smp_size)
+test = seq_len(nrow(merged_mr))[-training] 
  
+mpre =subset_grep(merged_mr, vastring)
+scaled1 = data.frame(apply(mpre, 2, scale))
+scaled1$value_mean = merged_mr$value_mean
+```
+
+Let's get some categorical variables for exploration. One is country, the other are two categorical variables constructed from continuous variabels TROPOMI and Night Light.
+
+```{r}
+scaled1$country =   merged_mr$country 
+
+scaled1$tropofac = as.factor(cut(merged_mr$trop_mean_filt, seq(min(merged_mr$trop_mean_filt), max(merged_mr$trop_mean_filt), 100), label = c(1:(length(seq(min(merged_mr$trop_mean_filt), max(merged_mr$trop_mean_filt), 100))-1))))
+ 
+scaled1$nifac = as.factor(cut(merged_mr$nightlight_5000, c( -0.001, 10, 30, 60,   max(merged_mr$nightlight_5000)), label = c(1:(length(sep)-1))))
+```
+
+
+The two figures below shows the relationship between NO2 and close-by primary road density, as well as nightlight is quite different between countries (first figure). The same applies for the relationships between station measured NO2 concentration and Tropomi NO2 column density.  
+
+```{r}
+scaled2 = scaled1 %>% filter(country %in% c("CN","ES","US","DE"))%>%
+  ggplot( aes(x =road_class_2_50, y = value_mean, color = nifac)) +
+  geom_point() + facet_wrap( ~ country)+ylab("NO2")+ labs(color='Night Light (category)') 
+ suppressWarnings(print(scaled2))
+ #ggsave("r50ni_4cou.png")
+ 
+ scaled2 = scaled1 %>% filter(country %in% c("CN","ES","US","DE"))%>%
+  ggplot( aes(x = trop_mean_filt, y = value_mean)) +
+  geom_point() + facet_wrap( ~ country)+
+  geom_smooth(method = "loess") +ylab("NO2")
+ suppressWarnings(print(scaled2))
+# ggsave("pop4cou.png")
+```
+
+Mixed effect model vs. Linear model with categories as variables. The mixed effect model with intersection being the random effect is similar to standard linear regression model with each category as a variable. 
+
+```{r}
+#select a few important variables
+scaled_sel = scaled1%>%select(population_5000 ,road_class_M345_1000 , road_class_M345_50 , road_class_2_100 ,road_class_2_25 , trop_mean_filt , nightlight_500 ,road_class_2_50, country, value_mean)
+
+scaledtrain = scaled_sel[training,]
+scaledtest = scaled_sel[test,] 
+
+#lme model vs. lm 
+me = lmer(value_mean ~ population_5000 +road_class_M345_1000 + road_class_M345_50 + road_class_2_100 + road_class_2_25 + trop_mean_filt + nightlight_500 +road_class_2_50+(1| country), scaledtrain)
+
+fixe = lm(value_mean ~ population_5000 +road_class_M345_1000 + road_class_M345_50 + road_class_2_100 + road_class_2_25 + trop_mean_filt + nightlight_500 +road_class_2_50+country, scaledtrain)
+ 
+pre_me1= predict(me, scaledtest)
+pre_fixe= predict(fixe, scaledtest)
+ 
+error_matrix(scaledtest$value_mean,prediction = pre_me1) # mixed effect
+error_matrix(scaledtest$value_mean,prediction = pre_fixe)
+```
+
+This time we let the road density within a 50 meter buffer be the random variable. We see a small increase in accuracy. But 
+```{r}
+me2 = lmer(value_mean ~ population_5000 +road_class_M345_1000 + road_class_M345_50 + road_class_2_100 + road_class_2_25 + trop_mean_filt + nightlight_500 +road_class_2_50+(road_class_2_50| country), scaledtrain)
+me2
+pre_me2= predict(me2, scaledtest)
+
+error_matrix(scaledtest$value_mean,prediction = pre_me2) # mixed effect
+
+#rfpre= predict(ranger(value_mean~., data =scaled_sel),scaledtest)%>%predictions()
+#error_matrix(scaledtest$value_mean,prediction = rfpre)
+
+``` 
