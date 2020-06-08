@@ -347,7 +347,48 @@ Creates diverse set of trees because
 2) randomly preselect mtry splitting variables in each split  
 
 ```{r}
-ranger(value_mean~., data = inde_var)
+smp_size <- floor(0.8* nrow(inde_var))
+training<- sample(seq_len(nrow(inde_var)), size = smp_size)
+test = seq_len(nrow(inde_var))[-training] 
+ 
+
+r1 = ranger(value_mean~., data = inde_var[training,], num.trees = 500)
+r1
+
+error_matrix(inde_var$value_mean[test], predictions(predict(r1, inde_var[test,])))
+```
+
+[Advanced] A step-further: postprocessing using Lasso to combine trees (instead of a simple aggregation). In this way, we can reduce the number of trees, this can result in higher prediction accuracy, reduce model overfitting and result in a more concise model. This method is introduced in the book Element of statistical learning (but is rarely seen in application, most likely because there is not an implemented function) but it is very simple to do, let's make a new function called prediction_with_pp_la (prediction with postprocessing using Lasso). 
+
+```{r}
+#' @param rfmodel ranger model
+#' @param trainingXY training matrix, with same response and predictor names as in the rfmodel 
+#' @param testingXY  testing matrix, with same response and predictor names as in the rfmodel
+#' @param trainingY training response vection
+
+prediction_with_pp_La=function(rfmodel, trainingXY, trainingY, testingXY)
+{
+  allp = predict(r1,trainingXY , predict.all = T)%>%predictions #get all the tree predictions, instead of the mean
+  cvfit <- glmnet::cv.glmnet(allp,trainingY , 
+        type.measure = "mse", standardize = TRUE, alpha = 1, 
+        lower.limit = 0)  
+  # aggregate using a regularization, here lasso, you can also do elastic net, training alpha or specify alpha between 0 and 1
+  rpre= predict(r1,testingXY, predict.all=T)%>%predictions # get all the tree predictions
+  predict(cvfit, newx = rpre) # use the regularization (here lasso) model to predict
+  }
+
+pre = prediction_with_pp_La(rfmodel = r1, trainingX = inde_var[training,], trainingY =inde_var$value_mean[training], testingXY = inde_var[test,])
+```
+
+We got a small improvement in prediction accuracy, both interms of bias and variance, and we reduced the number of trees to grow! 
+You can even see the distribution of the weights of trees. 
+```{r}
+
+error_matrix(inde_var$value_mean[test], pre)
+# number of trees selected, from 500 to 155!  
+sum(coef(cvfit)[-1]!= 0)
+# we can also plot it, using a tool from APMtools
+Lassoselected(cvfit)
 ```
 
 #### Gradient boosting
@@ -530,6 +571,8 @@ scaled2 = scaled1 %>% filter(country %in% c("CN","ES","US","DE"))%>%
 # ggsave("pop4cou.png")
 ```
 
+* Mixed effect models within known functions 
+
 Mixed effect model vs. Linear model with categories as variables. The mixed effect model with intersection being the random effect is similar to standard linear regression model with each category as a variable. 
 
 ```{r}
@@ -562,4 +605,10 @@ error_matrix(scaledtest$value_mean,prediction = pre_me2) # mixed effect
 #rfpre= predict(ranger(value_mean~., data =scaled_sel),scaledtest)%>%predictions()
 #error_matrix(scaledtest$value_mean,prediction = rfpre)
 
-``` 
+```
+
+* Mixed effect models within unknown functions 
+```{r}
+
+```
+
