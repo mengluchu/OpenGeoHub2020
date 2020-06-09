@@ -25,54 +25,25 @@ ipak(packages)
 install_github("mengluchu/APMtools") 
  
 library(APMtools)
-data(merged_nightlight)
+
+data(global_annual)
 ```
 
+Variables used:
 ```{r}
 y_var = "value_mean"
-
-merged = merged_nightlight
-merged = merge_roads(merged,c(3,4,5), keep = F)
-merged= na.omit(merged)
-
-```
-
- 
-```{r}
-prestring =  "ROAD|pop|temp|wind|RSp|OMI|eleva|I_|ni_light|Tropo" 
+prestring =  "road|nightlight|population|temp|wind|trop|indu|elev"
 varstring = paste(prestring,y_var,sep="|")
 ```
 
-```{r,eval=FALSE}
-set.seed(1)
-data1 = subset_grep(merged, varstring)
-data3 = data2%>%dplyr::select(-ni_light)
-
-ranger(value_mean~., data = data2, num.trees =    1000 )
-ranger(value_mean~., data = data3, num.trees =    1000 )
-attach(data1)
-summary(lm(value_mean~ni_light ))
-summary(lm(value_mean~Tropomi_2018+ROAD_2_100+pop5k*ni_light))
-summary(lm(ni_light~pop5k ))
-detach(data1)
-
- data2 = data1%>%filter(ni_light<50)
-summary(lm(value_mean~ni_light, data=data2))
-summary(lm(ni_light~ROAD_M345_5000, data=data2))
-summary(lm(value_mean~Tropomi_2018+ROAD_2_100+pop5k*ni_light, data = data2))
-summary(lm(ni_light~Tropomi_2018, data=data2))
- with(data2,plot(ni_light, pop5k) )
- with(data2,plot(ni_light, value_mean) )
- with(data2,plot(value_mean, Tropomi_2018) )
- with(data2,plot(ni_light, ROAD_M345_5000) )
- with(data2,plot(ni_light, ROAD_2_5000) )
- with(data2,plot(ni_light, ROAD_1_5000) )
- 
+prepare the dataset for modeling 
+```{r}
+merged = global_annual  %>%   merge_roads( c(3, 4, 5), keep = F) %>%na.omit() %>%
+  ungroup()%>%dplyr::select(matches(varstring))
 ```
  
 Variable importance: 20-times bootstrapping
-```{r, eval=T}
-
+```{r, eval=F}
 Impor_val =  function(n,df, method , y_var  ) {
 
   set.seed(n)
@@ -119,39 +90,41 @@ training<- sample(seq_len(nrow(df)), size = smp_size)
 test = seq_len(nrow(df))[-training] 
 
 P_rf = rf_LUR(df, numtrees =  1000, mtry = 14, vis1 = F,y_varname= y_var, training=training, test=test, grepstring =varstring)
+P_rf_la = rf_Lasso_LUR(df, numtrees =  1000, mtry = 14, vis1 = F,y_varname= y_var, training=training, test=test, grepstring =varstring)
+
 P_xgb= xgboost_LUR(df, max_depth =3, gamma=1, eta =0.05, nthread = 4, nrounds = 200, y_varname= y_var,training=training, test=test, grepstring =varstring)
 P_Lasso =  Lasso(df,alpha =1 , vis1  = F,y_varname = y_var,training=training, test=test,grepstring =prestring )
- 
-V = cbind(P_rf, P_xgb, P_Lasso)
+
+V = cbind(P_xgb, P_rf, P_rf_la, P_Lasso)
 } 
 V2 = lapply(1:20, df = merged, y_var = y_var,crossvali)
 V3 = data.frame(V2)
 #save(V3, file = paste0("V3.rdata"))
 ```
- 
+Visualize 
 ```{r, eval=T}
 #library(RColorBrewer)
 nvaria = ncol(V2[[1]])
-F1 = function(m, f=quote(summary)) {  apply(V3[, seq(m,ncol(V3), by =nvaria)], 1, f) }
+F1 = function(m, f=quote(summary)) {apply(V3[, seq(m,ncol(V3), by =nvaria)], 1, f) }
 
 plotresult = function(m0, DorN = c("mean of 20 times")){
-m1 = melt(t(m0))
  
-
-ggplot(m1, aes(Var2, value))+ geom_bar(stat = "identity",aes(fill = Var1),position = "dodge")+
+m1 = data.frame(t(m0))%>%mutate(measure = rownames(.))
+m1 = gather( m1,key = "method", value = "value", -measure)
+ggplot(m1, aes(method, value))+ 
+  geom_bar(stat = "identity",aes(fill = measure),position = "dodge")+
   xlab("methods") + ylab("Accuracy") +
-  ggtitle(paste0("bootstrap sub-sampling cross-validation: ", DorN)) +
-  theme_bw()+theme(axis.text=element_text(size=15),legend.text=element_text(size=20),axis.title=element_text(size=15,face="bold"))+
-    scale_fill_brewer(palette="Set2")  + theme(legend.title = element_blank()) 
+  ggtitle(paste0("bootstrap sub-sampling cross-validation: ", DorN)) + theme_bw() + theme(axis.text=element_text(size=15),legend.text=element_text(size=20),axis.title=element_text(size=15,face="bold")) + scale_fill_brewer(palette="Set2")+theme(legend.title = element_blank()) 
 }
 
 library(stargazer)
 meanvali = data.frame(sapply(1:nvaria, F1,  mean)) 
 names( meanvali) = dimnames(V2[[1]])[[2]]
 m0 = data.frame(t(meanvali))
-row.names(m0) = c(  "XGB", "RF", "Lasso")
+row.names(m0) = c(  "XGB", "RF", "RF_lasso","Lasso")
 #m0$type1 = c(rep("day", 6), rep("night",5))
 m0
+library(stargazer)
 stargazer(t(m0)) 
 plotresult(m0) 
 ```

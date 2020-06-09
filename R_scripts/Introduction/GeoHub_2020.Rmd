@@ -350,7 +350,6 @@ Creates diverse set of trees because
 smp_size <- floor(0.8* nrow(inde_var))
 training<- sample(seq_len(nrow(inde_var)), size = smp_size)
 test = seq_len(nrow(inde_var))[-training] 
- 
 
 r1 = ranger(value_mean~., data = inde_var[training,], num.trees = 500)
 r1
@@ -363,21 +362,21 @@ error_matrix(inde_var$value_mean[test], predictions(predict(r1, inde_var[test,])
 ```{r}
 #' @param rfmodel ranger model
 #' @param trainingXY training matrix, with same response and predictor names as in the rfmodel 
-#' @param testingXY  testing matrix, with same response and predictor names as in the rfmodel
+#' @param testingX  testing matrix, with predictor names in the rfmodel presented
 #' @param trainingY training response vection
 
-prediction_with_pp_La=function(rfmodel, trainingXY, trainingY, testingXY)
+prediction_with_pp_La=function(rfmodel, trainingXY, trainingY, testingX)
 {
   allp = predict(r1,trainingXY , predict.all = T)%>%predictions #get all the tree predictions, instead of the mean
   cvfit <- glmnet::cv.glmnet(allp,trainingY , 
         type.measure = "mse", standardize = TRUE, alpha = 1, 
         lower.limit = 0)  
   # aggregate using a regularization, here lasso, you can also do elastic net, training alpha or specify alpha between 0 and 1
-  rpre= predict(r1,testingXY, predict.all=T)%>%predictions # get all the tree predictions
+  rpre= predict(r1,testingX, predict.all=T)%>%predictions # get all the tree predictions
   predict(cvfit, newx = rpre) # use the regularization (here lasso) model to predict
   }
 
-pre = prediction_with_pp_La(rfmodel = r1, trainingX = inde_var[training,], trainingY =inde_var$value_mean[training], testingXY = inde_var[test,])
+pre = prediction_with_pp_La(rfmodel = r1, trainingX = inde_var[training,], trainingY =inde_var$value_mean[training], testingX = inde_var[test,])
 ```
 
 We got a small improvement in prediction accuracy, both interms of bias and variance, and we reduced the number of trees to grow! 

@@ -21,13 +21,22 @@ packages <- c( "dplyr",  "devtools", "ranger", "gbm","xgboost", "data.table", "v
 ipak(packages)
 #install_github("mengluchu/APMtools")
 library(APMtools)
- 
- 
-data(merged)
-merged  = merge_roads(merged,c(3,4,5), keep = F)
-merged = merged%>%dplyr::select(-day_value,-night_value)
+
+data("global_annual") 
 ```
-  
+
+Variables used:
+```{r}
+y_var = "value_mean"
+prestring =  "road|nightlight|population|temp|wind|trop|indu|elev"
+varstring = paste(prestring,y_var,sep="|")
+```
+
+prepare the dataset for modeling 
+```{r}
+merged = global_annual  %>%   merge_roads( c(3, 4, 5), keep = F) %>%na.omit() %>%
+  ungroup()%>%dplyr::select(matches(varstring))
+```  
   
  
 
