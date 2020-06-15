@@ -35,11 +35,11 @@ ipak <- function(pkg){
 
 stdata = c("sp", "sf", "raster")
 Stat_methods = c("lme4", "glmnet", "ranger", "gbm", "xgboost", "party", "caret", "gstat")
-visual = c("RColorBrewer", "ggplot2", "corrplot", "tmap", "leaflet", "mapview","leafem", "pdp", "vip", "DT", "sparkline")
+visual = c("RColorBrewer", "ggplot2", "corrplot", "tmap" )
 map = c("maptools")
-tidy = c("devtools", "dplyr",  "tidyr", "reshape2", "knitr")
-other = c("countrycode", "htmlwidgets", "data.table", "Matrix", "GGally")
- 
+tidy = c("devtools", "dplyr",  "tidyr",  "knitr")
+other = c("countrycode", "data.table", "Matrix", "GGally", "pdp")
+optional = c("leafem",   "vip", "DT", "sparkline","leaflet", "mapview", "htmlwidgets", "rasterVis", "tibble", "shiny") # for the chuncks to be run after work shop or other experienments (other scripts but in this workshop). 
 packages <- c(stdata, tidy, Stat_methods, visual, map, other)
 ipak(packages)
 ```
@@ -174,7 +174,7 @@ merged_mr %>% na.omit %>% filter(country == "DE") %>%  ungroup() %>%dplyr::selec
 #merged_mr %>% na.omit %>% filter(country == "CA") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
 #merged_mr %>% na.omit %>% filter(country == "CN") %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7)
 
-merged_mr %>% na.omit  %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7) 
+merged_mr %>% na.omit  %>%  ungroup() %>%dplyr::select(matches("value_mean|road_|night|trop|pop")) %>% cor %>% corrplot(type = "upper", method = "pie", tl.cex = 0.7) 
 ```
 
 
@@ -372,6 +372,9 @@ prediction_with_pp_La=function(rfmodel, trainingXY, trainingY, testingX)
         type.measure = "mse", standardize = TRUE, alpha = 1, 
         lower.limit = 0)  
   # aggregate using a regularization, here lasso, you can also do elastic net, training alpha or specify alpha between 0 and 1
+  print(sum(coef(cvfit)[-1]!= 0))
+# we can also plot it, using a tool from APMtools
+  Lassoselected(cvfit)
   rpre= predict(r1,testingX, predict.all=T)%>%predictions # get all the tree predictions
   predict(cvfit, newx = rpre) # use the regularization (here lasso) model to predict
   }
@@ -385,9 +388,7 @@ You can even see the distribution of the weights of trees.
 
 error_matrix(inde_var$value_mean[test], pre)
 # number of trees selected, from 500 to 155!  
-sum(coef(cvfit)[-1]!= 0)
-# we can also plot it, using a tool from APMtools
-Lassoselected(cvfit)
+
 ```
 
 #### Gradient boosting
@@ -549,7 +550,8 @@ scaled1$country =   merged_mr$country
 
 scaled1$tropofac = as.factor(cut(merged_mr$trop_mean_filt, seq(min(merged_mr$trop_mean_filt), max(merged_mr$trop_mean_filt), 100), label = c(1:(length(seq(min(merged_mr$trop_mean_filt), max(merged_mr$trop_mean_filt), 100))-1))))
  
-scaled1$nifac = as.factor(cut(merged_mr$nightlight_5000, c( -0.001, 10, 30, 60,   max(merged_mr$nightlight_5000)), label = c(1:(length(sep)-1))))
+sep = c( -0.001, 10, 30, 60,   max(merged_mr$nightlight_5000))
+scaled1$nifac = as.factor(cut(merged_mr$nightlight_5000,sep, label = c(1:(length(sep)-1))))
 ```
 
 

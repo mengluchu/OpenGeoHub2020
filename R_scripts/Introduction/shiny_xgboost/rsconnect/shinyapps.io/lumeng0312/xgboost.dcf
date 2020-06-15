@@ -1,0 +1,12 @@
+name: xgboost
+title: xgboost
+username:
+account: lumeng0312
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2456704
+bundleId: 3273947
+url: https://lumeng0312.shinyapps.io/xgboost/
+when: 1592254428.06078
+asMultiple: FALSE
+asStatic: FALSE
