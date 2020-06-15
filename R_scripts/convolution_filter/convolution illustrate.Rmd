@@ -1,0 +1,74 @@
+---
+title: "Image processing: convolution"
+author: "Meng Lu"
+output:
+  html_document:
+    df_print: paged
+---
+### An illustration of different convolution kernels, to bring intuitions of why the convolutional neural networks could work.
+
+We use the R package magick, the imagemagick library should be pre-installed. 
+```{r}
+library(magick)
+# it already depends on dplyr
+```
+
+What is convolution: a kernel is a matrix (in this example 3 x 3), which slide cross the image matrix, each pixel in covered by the kernel matrix is multiplied to the corresponding kernel value at the same location and the results are summed. Here 9 values becomes one. In deep learning, a filter is  kernel * channels 
+
+```{r}
+image_read("https://miro.medium.com/max/780/1*Eai425FYQQSNOaahTXqtgg.gif")
+```
+[source]("https://miro.medium.com/max/780/1*Eai425FYQQSNOaahTXqtgg.gif")
+
+#### Different kernels:
+
+##### Edge extraction 
+
+
+```{r}
+kern = matrix(0, ncol =3, nrow =3)
+kern[c(1,9)] = 1
+kern[c(3, 7)] = -1
+kern
+
+logo%>% image_convolve(kern)
+kern1 = matrix(-1, ncol =3, nrow =3)
+kern1[c(1,3,7,9)]  =0
+kern1[5] = 4
+kern1
+
+kern2 = matrix(-1, ncol =3, nrow =3)
+kern2[5]  =8
+kern2
+image_append(c(logo%>%image_resize("200x200") %>%image_convolve(kern),
+               logo%>%image_resize("200x200") %>%image_convolve(kern1), 
+               logo%>%image_resize("200x200")%>%image_convolve(kern2)))
+
+
+```
+
+Sobel
+```{r}
+sobelx  = matrix(c(-1,-2,-1,0,0,0,1,2,1), ncol =3, nrow =3)
+sobely  = matrix(c(1,0,-1,2,0,-2,1,0,-1), ncol =3, nrow =3)
+logo %>%image_resize("300x300")%>% image_convolve(sobely)%>%plot()
+logo %>%image_resize("300x300")%>% image_convolve(sobelx)%>%plot()
+logo %>%image_resize("300x300")%>% image_convolve('Sobel')
+```
+
+##### Blurring
+```{r}
+# Gaussian blur
+kern3 = matrix(c(1,2,1,2,4,2,1,2,1)*1/16, ncol =3, nrow =3)
+kern3
+logo%>%image_convolve(kern3)
+```
+
+##### Sharpen
+```{r}
+# sharpen
+kern3 = kern1
+kern3[5]  =5
+kern3 
+logo%>%image_convolve(kern3)
+```

@@ -16,17 +16,17 @@ knitr::opts_chunk$set(echo = TRUE)
 library(stars)
 library(raster) 
 
-trop = read_stars("Satellite/trop_mean_filt.tif")
+trop = read_stars("rasters/trop_mean_filt.tif")
 trop
 system.time(plot(trop))
-trop = raster("Satellite/trop_mean_filt.tif")
+trop = raster("rasters/trop_mean_filt.tif")
 trop
 system.time(plot(trop))
 
-plot(read_stars("Satellite/OMI_mean_filt.tif"))
+plot(read_stars("rasters/OMI_mean_filt.tif"))
  
-plot(raster("Satellite/OMI_mean_filt.tif"))
-plot(read_stars("Satellite/Rsp.tif"))
-plot(raster("Satellite/Rsp.tif")) 
+plot(raster("rasters/OMI_mean_filt.tif"))
+plot(read_stars("rasters/Rsp.tif"))
+plot(raster("rasters/Rsp.tif")) 
 ```
  

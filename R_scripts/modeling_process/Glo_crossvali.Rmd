@@ -20,7 +20,7 @@ ipak <- function(pkg){
   sapply(pkg, require, character.only = TRUE)
 }
 packages <- c( "devtools", "dplyr","data.table" , "ggplot2" , "RColorBrewer", "raster", "rasterVis", "rgdal","Matrix","xgboost",  "glmnet", "ranger", "randomForest"  
-,"tidyverse" )
+,"tidyverse" ,"stargazer")
 ipak(packages)
 install_github("mengluchu/APMtools") 
  
@@ -56,8 +56,8 @@ test = seq_len(nrow(df))[-training]
 methodID = switch(method,  "xboost"=1,"rf" =2, "gb"=3) 
 
 df = switch(methodID,  
-            xgboost_imp (variabledf= df, y_varname= y_var, max_depth =3, gamma=1, eta =0.05, nthread = 4, nrounds = 636, training=training, test=test, grepstring =varstring ),  
-            rf_imp(df, y_varname= y_var, training=training, test=test, grepstring =varstring,mtry = 24, numtrees = 1000),
+            xgboost_imp (variabledf= df, y_varname= y_var, max_depth =4, gamma=1, eta =0.05, nthread = 4, nrounds = 1650, training=training, test=test, grepstring =varstring ),  
+            rf_imp(df, y_varname= y_var, training=training, test=test, grepstring =varstring,mtry = 34, numtrees = 1000),
             Brt_imp (df, opti = F,   ntree= 2000, y_varname= y_var, training=training, test=test,  grepstring =varstring)
 
 ) 
@@ -74,7 +74,7 @@ xb = names(mimpxb[order(mimpxb,decreasing = T)]  )[1:20]
 rf = names(mimpVrf[order(mimpVrf,decreasing = T)] ) [1:20]
 vimp=cbind(rank = 1:20, xgboost = xb, randomforest = rf)
 #install.packages("stargazer")
-library(stargazer)
+ 
 stargazer(vimp)
 ```
 
@@ -89,10 +89,10 @@ set.seed(n)
 training<- sample(seq_len(nrow(df)), size = smp_size)
 test = seq_len(nrow(df))[-training] 
 
-P_rf = rf_LUR(df, numtrees =  1000, mtry = 14, vis1 = F,y_varname= y_var, training=training, test=test, grepstring =varstring)
-P_rf_la = rf_Lasso_LUR(df, numtrees =  1000, mtry = 14, vis1 = F,y_varname= y_var, training=training, test=test, grepstring =varstring)
+P_rf = rf_LUR(df, numtrees =  1000, mtry = 34, vis1 = F,y_varname= y_var, training=training, test=test, grepstring =varstring)
+P_rf_la = rf_Lasso_LUR(df, numtrees =  1000, mtry = 34, vis1 = F,y_varname= y_var, training=training, test=test, grepstring =varstring)
 
-P_xgb= xgboost_LUR(df, max_depth =3, gamma=1, eta =0.05, nthread = 4, nrounds = 200, y_varname= y_var,training=training, test=test, grepstring =varstring)
+P_xgb= xgboost_LUR(df, max_depth =4, gamma=1, eta =0.05, nthread = 4, nrounds =1650, y_varname= y_var,training=training, test=test, grepstring =varstring)
 P_Lasso =  Lasso(df,alpha =1 , vis1  = F,y_varname = y_var,training=training, test=test,grepstring =prestring )
 
 V = cbind(P_xgb, P_rf, P_rf_la, P_Lasso)
@@ -116,15 +116,14 @@ ggplot(m1, aes(method, value))+
   xlab("methods") + ylab("Accuracy") +
   ggtitle(paste0("bootstrap sub-sampling cross-validation: ", DorN)) + theme_bw() + theme(axis.text=element_text(size=15),legend.text=element_text(size=20),axis.title=element_text(size=15,face="bold")) + scale_fill_brewer(palette="Set2")+theme(legend.title = element_blank()) 
 }
-
-library(stargazer)
+ 
 meanvali = data.frame(sapply(1:nvaria, F1,  mean)) 
 names( meanvali) = dimnames(V2[[1]])[[2]]
 m0 = data.frame(t(meanvali))
 row.names(m0) = c(  "XGB", "RF", "RF_lasso","Lasso")
 #m0$type1 = c(rep("day", 6), rep("night",5))
 m0
-library(stargazer)
+ 
 stargazer(t(m0)) 
 plotresult(m0) 
 ```
