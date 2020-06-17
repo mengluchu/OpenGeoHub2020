@@ -34,6 +34,7 @@ contains 5 sub-folders that corresponds to the Introduction, statistical method,
 
 - [Introduction](/R_scripts/Introduction/)
   - **Geohub_2020.Rmd**: data analysis script that includes a variety of tools for data exploration and modeling. You can explore the data and analyse modeling results, for example looking at the scatterplots, spatial correlations, partial dependence plot, importance plot. You can also see how the machine learning functions are parameterized and used for modelling, besides the deep neural networks, which is implemented in Python. 
+  - **shiny_randomforest** and **shiny_xgboost** are developed to provide an intuitive understanding of the effects of hyperparameters on the prediction patterns, instead of only focusing on the cross-validation. [For XGboost it can be viewed here](https://lumeng0312.shinyapps.io/xgboost/?_ga=2.179522658.79817579.1592385947-986486774.1592216474), and [a comment here](accuracyhttps://tomatofox.wordpress.com/2020/06/15/hyperparameters-of-ensemble-trees/).
 
 - [convolution_filter](/R_scripts/convolution_filter/)
   - **convolutional illustrated.Rmd**: Basic image analysis: the effect of different convolutional filters in image edge extraction, sharpening and blurring. 
@@ -62,12 +63,10 @@ This folder contains:
   In this study, we used buffered variables -- variables aggregated over buffers of various sizes. The roads and industry variables are calcualted from OpenStreetMap. Scripts to downloading OpenStreetMap data, pre-processing, and calculate buffers are included in this folder. Please refer to the README file in the foler for more details. You can also visit our GitHub page to reproduce all the predictor variables, or calculate your own predictors. I believe this will greatly faciliate relevant research, especially studies starting from scratch. 
 
 - [Notes for installing Anaconda and editor (Jupyter or Spyder)](/Python/README.md) 
-
-### Others
-
-#### The [slides_notes](/slides_and_notes/) folder
+ 
+### The [slides_notes](/slides_and_notes/) folder
 
 the slides for the plenary and workshop in the afternoon. Software for querying and processing OpenStreetMap, and data description of the night earth light measurements.  
 
-[Here is an example](https://lumeng0312.shinyapps.io/xgboost/?_ga=2.179522658.79817579.1592385947-986486774.1592216474) of the effects of hyperparameters on cross-validation results and prediction patterns of XGboost. 
+
    
