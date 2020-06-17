@@ -35,8 +35,10 @@ contains 5 sub-folders that corresponds to the Introduction, statistical method,
  
 - [modeling_process](/R_scripts/modeling_process/): the modelling process from hyperparameter optimization, cross validation, to mapping.
 
-  - **Glo_hyp_tun.Rmb**: hyperparmeter tunning for the xgboost, random forest, and gradient boosting machine, using grid search and R caret package.
-  - **Glo_vali_map_compare** : the models are validated using bootstrapping (eval set to false, if you want to try it to yourself it takes about 10 minutes), the variable importance are averaged over the bootstrapped rounds. The models are used to make predictions (map) in a small region. The prediction results are further compared with mobile sensor measurements (air monitor stations on board a carrier-bike).
+  - **Glo_hyp_tun.Rmd**: hyperparmeter tunning for the xgboost, random forest, and gradient boosting machine, using grid search and R caret package.
+  - **Glo_crossvali.Rmd** : the models are validated using bootstrapping (eval set to false, if you want to try it to yourself it takes about 10 minutes), the variable importance are averaged over the bootstrapped rounds. 
+  - **Glo_map.Rmd**: The models are used to make predictions (map) in a small region, using multiple methods for comparison.  
+  - **dc.gri, dc.grd**: Geospatial predictors used for mapping.
 
 - [other](/R_scripts/other/): Consists of small experiements to deepen the understandings of Machine learning.
   - **differences between ML and statistics**
