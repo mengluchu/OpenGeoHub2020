@@ -31,7 +31,7 @@ contains 5 sub-folders that corresponds to the Introduction, statistical method,
   - **Geohub_2020.Rmd**: data analysis script that includes a variety of tools for data exploration and modeling. You can explore the data and analyse modeling results, for example looking at the scatterplots, spatial correlations, partial dependence plot, importance plot. You can also see how the machine learning functions are parameterized and used for modelling, besides the deep neural networks, which is implemented in Python. 
 
 - [convolution_filter](/R_scripts/convolution_filter/)
- - **convolutional illustrated.Rmd**: Basic image analysis: the effect of different convolutional filters in image edge extraction, sharpening and blurring. 
+  - **convolutional illustrated.Rmd**: Basic image analysis: the effect of different convolutional filters in image edge extraction, sharpening and blurring. 
  
 - [modeling_process](/R_scripts/modeling_process/): the modelling process from hyperparameter optimization, cross validation, to mapping.
 
