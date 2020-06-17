@@ -20,6 +20,11 @@ image_read("https://miro.medium.com/max/780/1*Eai425FYQQSNOaahTXqtgg.gif")
 ```
 [source]("https://miro.medium.com/max/780/1*Eai425FYQQSNOaahTXqtgg.gif")
 
+Logo figure:
+```{r}
+plot(logo)
+```
+
 #### Different kernels:
 
 ##### Edge extraction 
