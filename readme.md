@@ -22,7 +22,7 @@ Deep learning is a very fast evolving and facinating fields, many strategies, ar
 contains 5 sub-folders that corresponds to the Introduction, statistical method, and modeling process sections of the lecture: 
  
 
-- [Data\ visualize](/R_scripts/Data visualize/): visualizing Satellite imagery and the OpenAQ API.
+- [Data_visualize](/R_scripts/Data visualize/): visualizing Satellite imagery and the OpenAQ API.
   - **plot_RS.Rmd**: visualize the 3 remote sensing products.
   - **openaq.Rmd** : querying open openaq data using R API 
   - **rasters**: remote sensing products and a 1 degree by 1 degree tile of all the predictors for mapping and visual inspection
@@ -48,7 +48,7 @@ The predictor calculation- in particular OSM map querying and buffer calculation
 
 This folder contains:
 
-- [deep\ learning](/Python/deep learning/)
+- [deep_learning](/Python/deep learning/)
   two methods are implemented: point-based and convolutional based. Please go to the folder for more info. 
   
 - [calc_predictors](/Python/calc_predictors/)
