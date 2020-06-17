@@ -5,7 +5,7 @@ In many middle and low-income countries, air pollution monitor networks are defi
 2. Assimilating Geospatial predictors, ground sensor and satellite instruments measured pollutants from various resolutions and sources.
 3. Modelling the effects of transportation network structures (to air pollutant emission). 
 
-Machine learning methods, when making full use of spatial information, clearly provide us an unprecedented opportunity with the burgeoning availability of data. Many atmospheric numerical modellers are impressed by the accuracy a statistical model could reach, however, global high-resolution air quality prediction is still at its infacy, the chanllenges are awaiting to be addressed.    
+Machine learning methods, when making full use of spatial information, clearly provide us an unprecedented opportunity with burgeoning availability of data. Many atmospheric numerical modellers are impressed by the accuracy a statistical model could reach, however, global high-resolution air quality prediction is still at its infacy, the chanllenges are awaiting to be addressed.    
 
 In this course, I will introduce the whole global air pollution modelling process, with a focus on introducing how different machine learning methods (e.g. ensemble trees, deep learning) and strategies (e.g. regularization, postprocessing) can be used in spatial NO2 prediction. The deep learning and variable predictor calculations (in particular OpenStreetMap querying and processing), are introduced in Python and others in R.  
 
