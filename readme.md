@@ -18,7 +18,7 @@ Deep learning is a very fast evolving and facinating fields, many strategies, ar
 - **Mixed-effect models** 
 
 ## Course Material:
-### The *R_script* folder 
+### The  [R_script](/R_scripts/) folder 
 contains 5 sub-folders that corresponds to the Introduction, statistical method, and modeling process sections of the lecture: 
  
 
