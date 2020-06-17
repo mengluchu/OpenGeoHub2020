@@ -34,7 +34,7 @@ contains 5 sub-folders that corresponds to the Introduction, statistical method,
 
 - [Introduction](/R_scripts/Introduction/)
   - **Geohub_2020.Rmd**: data analysis script that includes a variety of tools for data exploration and modeling. You can explore the data and analyse modeling results, for example looking at the scatterplots, spatial correlations, partial dependence plot, importance plot. You can also see how the machine learning functions are parameterized and used for modelling, besides the deep neural networks, which is implemented in Python. 
-  - **shiny_randomforest** and **shiny_xgboost** are developed to provide an intuitive understanding of the effects of hyperparameters on the prediction patterns, instead of only focusing on the cross-validation. [For XGboost it can be viewed here](https://lumeng0312.shinyapps.io/xgboost/?_ga=2.179522658.79817579.1592385947-986486774.1592216474), and [a comment here](accuracyhttps://tomatofox.wordpress.com/2020/06/15/hyperparameters-of-ensemble-trees/).
+  - **shiny_randomforest** and **shiny_xgboost**: R shiny apps developed to provide an intuitive understanding of the effects of hyperparameters on the prediction patterns, instead of only focusing on the cross-validation. [For XGboost it can be viewed here](https://lumeng0312.shinyapps.io/xgboost/?_ga=2.179522658.79817579.1592385947-986486774.1592216474), and [a comment here](https://tomatofox.wordpress.com/2020/06/15/hyperparameters-of-ensemble-trees/).
 
 - [convolution_filter](/R_scripts/convolution_filter/)
   - **convolutional illustrated.Rmd**: Basic image analysis: the effect of different convolutional filters in image edge extraction, sharpening and blurring. 
