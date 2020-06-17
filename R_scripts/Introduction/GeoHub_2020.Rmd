@@ -255,9 +255,14 @@ XGBoost is surely popular, as it won the Kaggle (machine learning prediction) co
 inde_var = inde_var%>%ungroup()%>%dplyr::select(-country)
 ```
 
-#### Hyperparameter tuning using R Caret package.
+#### Hyperparameter optimization
+
+[Here is an example](https://lumeng0312.shinyapps.io/xgboost/?_ga=2.179522658.79817579.1592385947-986486774.1592216474) of the effects of hyperparameters on cross-validation results and prediction patterns of XGboost. 
+   
+- Note
 
 * Here I only show how to tune hyper-parameters, detailed description and what hyper-parameter I tunned are in "Glo_hyp_tun.Rmb"
+
 * It is commonly (and strongly) recommended in deep learning to split the data into 3: model training; hyperparameter optimization; testing. The reason, is that the hyper-parameter optimization process may cause information leakage. However, separating a test dataset out may cause more severe bias. Actually, this question haunted me for a very long time since I started pulling out my results, and alsogenerated heated discussions between me and a reviewer of my recent global mapping paper. To reflect, [I wrote a discussion about this] (https://tomatofox.wordpress.com/2020/04/20/how-to-assess-accuracy-of-a-machine-learning-method-when-observations-are-limited/), comments appreciated!   
 
 Let's come back to the model tunning, here I am showing to do this with the R package Caret, there are other packages,such as mlr3, but but Caret seems to be well-maintained, and is sufficient in most cases, and you can simply use ggplot on the caret::train object. All we need is to custom a tunning grid for tunning and control the resampling method.
