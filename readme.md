@@ -56,7 +56,7 @@ This folder contains:
 - [calc_predictors](/Python/calc_predictors/)
   In this study, we used buffered variables -- variables aggregated over buffers of various sizes. The roads and industry variables are calcualted from OpenStreetMap. Scripts to downloading OpenStreetMap data, pre-processing, and calculate buffers are included in this folder. Please refer to the README file in the foler for more details. You can also visit our GitHub page to reproduce all the predictor variables, or calculate your own predictors. I believe this will greatly faciliate relevant research, especially studies starting from scratch. 
 
-- [Notes_conda_Jupyter](/Python/Notes_conda_Jupyter.docx/) 
+- [Notes for installing Anaconda and editor (Jupyter or Spyder)](/Python/README.md) 
 
 ### Others
 
