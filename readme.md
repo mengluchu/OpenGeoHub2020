@@ -2,7 +2,7 @@
 
 In many middle and low-income countries, air pollution monitor networks are deficient or nonexisting, but in these countries people are the most vulnerable to air pollution, with young children suffer the most. The goal is to integrate information from ground station measurements, satellite measurements and geospatial predictors, to estimate global air quality, at a high resolution (< 100 m). Challenges are:
 1. Modelling the geospatially heterogenious relationships between predictors and pollutants. 
-2. Assimilating remote sensing measurements and predictors from different resolutions and sources 
+2. Assimilating Geospatial predictors, ground sensor and satellite instruments measured pollutants from various resolutions and sources.
 3. Modelling the effects of transportation network structures (to air pollutant emission). 
 
 Machine learning methods, when making full use of spatial information, clearly provide us an unprecedented opportunity with the burgeoning availability of data. Many atmospheric numerical modellers are impressed by the accuracy a statistical model could reach, however, global high-resolution air quality prediction is still at its infacy, the chanllenges are awaiting to be addressed.    
