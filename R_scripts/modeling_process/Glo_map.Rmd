@@ -10,12 +10,7 @@ knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path=paste0('output',"/"),
 
 Let's see the global model making prediction at an area.
 
-file names for the output maps
-```{r}
-xgbname = "xgbdc.tif"
-rfname = "rfdc.tif"
-laname = "Ladc.tif"
-```
+
 
 packages to install
 ```{r}
@@ -47,18 +42,28 @@ sr = stack("dc.grd")
 
 ```
 
-
-
-Mapping, implemented in the predicLA_RF_XGBtiles are three methods, random forest using randomForest package, Lasso using glmnet package, and xgboost using xgboost prackage. APMtools:: ranger_stack predicts using a ranger model, as it seems the raster::predict still does not support ranger (actually it explicitly support only randomForest and gbm, others it gives it a try), there are other work-arounds. Here the APMtools::ranger_stack function turns rasterStack into matrix for caluclation and put predictions back to rasters. 
+Mapping using xgboost, which handels missing value in predictors both in the modeling and prediction process
+```{r}
+# nrounds 1650 and eta 0.003 in practice, current setting for fast demonstration, 
+xgb_stack(sr=sr, df_var = inde_var, y_var ="value_mean",xgbname = "densexgb.tif",nrounds = 150, eta = 0.05)
+levelplot(raster("densexgb.tif"))
+```
  
+Comparison between prediction patterns using differernt methods. We use the APMtools::predicLA_RF_XGBtiles, which is implemented for three methods, random forest using randomForest package, Lasso using glmnet package, and xgboost using xgboost prackage. 
+
+file names for the output maps
+```{r}
+xgbname = "xgbdc.tif"
+rfname = "rfdc.tif"
+laname = "Ladc.tif"
+```
 
 ```{r}
 set.seed(1)
-xgb_rounds = 120 # 1650 in practice, 120 for fast demonstration
-rf_ntree = 1000 # 1000 in practice, 500 for fast demonstration
+xgb_rounds = 150 # 1650 in practice, 150 for fast demonstration
+rf_ntree = 1000 #  
 rf_mtry = 34  # optimized from caret
 predicLA_RF_XGBtiles(df = inde_var, rasstack = sr, yname = "value_mean", varstring = varstring, xgbname=xgbname, rfname = rfname, laname = laname, ntree = rf_ntree, mtry = rf_mtry,  max_depth = 4, eta = 0.05, nthread = 4, gamma = 1,  nrounds = xgb_rounds) 
-ranger_pre = ranger_stack(inde_var, "value_mean", sr, 34, 1000)
 ```
 
 
@@ -80,34 +85,42 @@ stack(rfs, xgbs )%>%levelplot(at = seq(20, 45, by =3), par.settings = myTheme, n
 #levelplot(stack(rfs, xgbs))
 #dev.off()
 
-# show on openStreetMap
+
+```
+
+Visualize using Openstreetmap,show on openStreetMap -importantly, need to reproject to the wgs84 epsg: 4326
+
+```{r}
 locations_sf = st_as_sf(global_annual, coords = c("long","lat"))
 rfs = projectRaster(rfs, crs=   CRS("+init=epsg:4326"))
 xgbs = projectRaster(xgbs, crs=   CRS("+init=epsg:4326"))
 las = projectRaster(las, crs=   CRS("+init=epsg:4326"))
-ranger_pre = projectRaster(ranger_pre, crs=   CRS("+init=epsg:4326"))
-```
 
-Visualize using Openstreetmap
-```{r}
- 
 osm_valuemean = tm_shape(rfs)+
   tm_raster(names(rfs),palette = "-Spectral", n = 9,alpha = 0.9)+
   tm_shape(xgbs)+tm_raster(names(xgbs),"-Spectral", n = 9,alpha = 0.9)+
   tm_shape(las)+tm_raster(names(las),"-Spectral", n = 9,alpha = 0.9) +
   tm_shape(locations_sf) +
   tm_dots( "value_mean", col = "value_mean", size = 0.05,title = "NO2 value",
-           popup.vars = c("value_mean" ))+
-  tm_shape(ranger_pre)+
-  tm_raster(names(ranger_pre),"-Spectral", n = 9,alpha = 0.9)+
+           popup.vars = c("value_mean" ))+ 
        tm_view(basemaps = c('OpenStreetMap'))
 tmap_save(osm_valuemean, "predictions_pre.html")
 
 ```
 
+APMtools:: ranger_stack predicts using a ranger model, as it seems the raster::predict still does not support ranger (actually it explicitly support only randomForest and gbm, others it gives it a try), there are other work-arounds. Here the APMtools::ranger_stack function turns rasterStack into matrix for caluclation and put predictions back to rasters. 
+```{r, eval = F}
+ranger_pre = ranger_stack(inde_var, "value_mean", sr, 34, 1000)
+levelplot(ranger_pre)
+```
+
 Compare also ranger and randomForest prediction.
  
 ```{r, eval = F}
+
+
+ranger_pre = projectRaster(ranger_pre, crs=   CRS("+init=epsg:4326"))
+
 levelplot(stack(rfs, ranger_pre))
 levelplot(rfs- ranger_pre)
 values(rfs- ranger_pre)%>%summary() # 0.1 maybe not worth worrying
