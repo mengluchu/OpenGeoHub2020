@@ -1,0 +1,12 @@
+name: shiny_randomforest
+title: shiny_randomforest
+username:
+account: lumeng0312
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2555478
+bundleId: 3374807
+url: https://lumeng0312.shinyapps.io/shiny_randomforest/
+when: 1594357310.96557
+asMultiple: FALSE
+asStatic: FALSE
