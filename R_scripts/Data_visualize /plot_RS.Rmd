@@ -1,5 +1,5 @@
 ---
-title: "temp1"
+title: "Visualizing remote sensing data"
 output: html_document
 ---
 
@@ -12,9 +12,15 @@ knitr::opts_chunk$set(echo = TRUE)
 3. Rsp: remote sensing and Chem-GEOS model estimated surface concentration.(http://fizz.phys.dal.ca/~atmos/martin/?page_id=232)
 
 ```{r}
-#install.packages("stars", "raster")
-library(stars)
-library(raster) 
+ipak <- function(pkg){
+ 
+   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+   if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE, repos = "https://cloud.r-project.org")
+  sapply(pkg, require, character.only = TRUE)
+}
+package = c("raster", "stars")
+ipak(package)
 
 trop = read_stars("rasters/trop_mean_filt.tif")
 trop
