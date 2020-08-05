@@ -5,21 +5,21 @@ In many middle and low-income countries, air pollution monitor networks are defi
 2. Assimilating Geospatial predictors, ground sensor and satellite instruments measured pollutants from various resolutions and sources.
 3. Modelling the effects of transportation network structures (to air pollutant emission). 
 
-Machine learning methods, when making full use of spatial information, clearly provide us an unprecedented opportunity with burgeoning availability of data. Many atmospheric numerical modellers are impressed by the accuracy a statistical model could reach, however, global high-resolution air quality prediction is still at its infacy, the chanllenges are awaiting to be addressed.    
+With geospatial predictors and measurements growing in spatiotemporal resolution, coverage, and diversity, machine learning algorithms (statistical- based methods) provide an unprecedented opportunity to map our environment. Many atmospheric numerical modellers are impressed by the accuracy a statistical model could reach, however, global high-resolution air quality mapping is still at its infacy, the chanllenges are awaiting to be addressed.    
 
-In this course, I will introduce the whole global air pollution modelling process, with a focus on introducing how different machine learning methods (e.g. ensemble trees, deep learning) and strategies (e.g. regularization, postprocessing) can be used in spatial NO2 prediction. The deep learning and variable predictor calculations (in particular OpenStreetMap querying and processing), are introduced in Python and others in R.  
+In this course, I will introduce most recent status in global air pollution modelling, with a focus on introducing different machine learning algorithms (e.g. ensemble trees, deep learning) and strategies (e.g. regularization, postprocessing). The deep learning and variable predictor calculations (in particular OpenStreetMap querying and processing), are introduced in Python and others in R. For the Python part, a [Kaggle notebook] (https://www.kaggle.com/notebooks) is shared, meaning nothing needs to be installed or computed locally.
 
-Deep learning is a very fast evolving and facinating fields, many strategies, architectures, concepts have been developed. It is a powerful representation learning tool that is a game changer in computer vision, which means also in many areas of remote sensing, particulaly in instance segmentation, localization, image maching, showing its great power in the era of big data. Besides providing more accurate land element, what more can  deep learning algorithms bring in air pollution mapping, can it help with finding the road network-air pollution relationships?
+Deep convolutional neural networks are a powerful representation learning tool that is a game changer in computer vision. Can it also be used to extract more complex features from our transportation networks0 for better air pollution mapping and help with finding the road network-air pollution relationships?
 
-**After this course, you will 1) learn a variety of machine learning algorithms; 2) become an efficient modeller (at least in air quality); 3) understand/implement/use the newest algorithms in machine learning and (hopefully) also be interested in challenges in global prediction problems**.
+**After this course, you can expect to 1) understand the current challenges in global environmental mapping (prediction) and methods to approach them, 2) Learn a variety of machine learning algorithms, and 3) Be able to apply the most recent and powerful algorithms in practice. 
 
 ## Methods to be learned are: 
-- **Model Regularization** (Ridge; Lasso; Elastic Net; XGBoost, Deep Neural Networks)
 - **Random Forest**
 - **Boosting** (e.g. gradient boosting machine and XGBoost)
+- **Model Regularization and postprocessing** 
 - **Deep Neural Networks** 
   - point-based
-  - convolutional neural networks: Self-defined and recently development 
+  - convolutional neural networks apply to OpenStreetMaps
 - **Mixed-effect models** 
 
 ## Course Material:
