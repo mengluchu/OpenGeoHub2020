@@ -11,10 +11,10 @@ In this course, I will introduce most recent status in global air pollution mode
 
 Deep convolutional neural networks are a powerful representation learning tool that is a game changer in computer vision. Can it also be used to extract more complex features from our transportation networks0 for better air pollution mapping and help with finding the road network-air pollution relationships?
 
-After this course, you can expect to 
-- 1) understand the current challenges in global environmental mapping (prediction) and methods to approach them.
-- 2) Learn a variety of machine learning algorithms.
-- 3) Be able to apply the most recent and powerful algorithms in practice. 
+After this course, you can expect to:
+1) Understand the current challenges in global environmental mapping (prediction) and methods to approach them.
+2) Have a (more in-depth) understanding to a variety of machine learning algorithms.
+3) Be able to apply the most recent and powerful algorithms in practice. 
 
 ## Methods to be learned are: 
 - **Random Forest**
