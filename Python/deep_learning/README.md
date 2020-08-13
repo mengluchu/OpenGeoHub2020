@@ -2,12 +2,7 @@
 
 Exploration of air pollution mapping and others. The very initial motivation is to learn the road-no2 relationships automatically than using buffers
 - In the folder "CNN" you will find a jupyter notebook for the modeling process. 
-- In the Archive folder:
-* data_arrange.py: gather data, the original data are pcrastermaps of roads in 25 m buffer at coordinates of ground stations
-* cnnap.py: explore a  simple deep cnn structure with augumentation, different batchsize, structure, activation, pooling strategies.
-* airbase_oaq.csv: ground stations for global air pollution mapping, currently not including Australia. 
-* Figures form result folder shows the MAE obtained using different settings.
-* The predictors folder consists of 32x32xn np arrays for each road type. They are cropped from a larger array (arround 70*50)
+
 
 #### current findings in setting 
 
