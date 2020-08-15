@@ -62,14 +62,15 @@ Load data:
 #g2 = g1%>%dplyr::select(-id, -dir, -V1)%>%filter(value_mean >0)  
 data("global_annual")  
 ```
- 
-Predictor variables to include:
 
-```{r}
-vastring = "road|nightlight|population|temp|wind|trop|indu|elev"
-```
+
  
 Dataset:
+
+
+```{r}
+names(global_annual)
+``` 
 
 * value_mean: annual mean $NO_2$ ($\mu g/m^3$). 
 
@@ -82,7 +83,6 @@ Dataset:
 *7*. Rsp: Surface remote sensing and chemical transport model product (only for 2012).  
 *8*. OMI_mean_filt: OMI column density, 2017 annual average.    
 *9*. nightlight_size: nightlight VIIRS data in original resolution (500 m) and various buffer sizes. 
-
 NO2 annual concentration, all the units are converted to $\mu g/m^3$ (micro grams per cubic meter). In the data display later you can see countries with different units. 
 
 ```{r}
@@ -92,6 +92,7 @@ global_annual %>% dplyr::select(value_mean ) %>% summary()
 
 
 Merge roads of different road types, here 3, 4, 5 means the road length of these roads( i.e. road_class_3, road_class_4, and road_class_5) are aggregated. The original road types are substituted (with keep = T, they are remained). 
+
  
 ```{r mergeroads}
 merged_mr = merge_roads(global_annual, c(3, 4, 5), keep = F) # keep = T keeps the original roads. 
@@ -113,6 +114,7 @@ osm_valuemean = tm_shape(locations_sf) +
 tmap_save(osm_valuemean, "NO2mean.html")
 
 ```
+
 Checking missing data
 ```{r eval=F}
 climatemissing= merged_mr%>%filter(is.na(wind_speed_10m_10))
@@ -229,6 +231,7 @@ Discussion 1, try different scatterplot and discuss about the findings
  
 # Section 2: Modelling
 
+
 * Random Forest, 
 * Gradient boosting machine, 
 * XGboost
@@ -237,16 +240,14 @@ Discussion 1, try different scatterplot and discuss about the findings
 
 If we use a single regression tree, the tree and prediction error will be different if shuffeling training and testing data. To reduce the variance, a method called "bagging" is developed, which agregate over (weak) voters. If the predictor variables are correlated, the reduction in variance is decreasing, Random Forest comes to resecue by ramdomly sampling variables.
 
-XGBoost is surely popular, as it won the Kaggle (machine learning prediction) competition. It has a few features such as being scalable, but most importantly, it super-imposed a regularization to prevent model over-fitting. However, in my experience, though I often obtain the lowest RMSE or highest R2 with XGBoost, the spatial pattern it predicts look a lot worse than random forest, or simpler linear model with regularization -- Lasso. It looks to predict lots of artefacts. We further compared various model  prediction results with mobile sensor measurements (with a typical Dutch transporting tool "bakfiets", which is a cargo-bike), and found XGBoost matches the least with the mobile sensor measurements! -- No matter how I tune the model.       
+XGBoost became a popular ensembletree-based mehdos since it won the Kaggle (machine learning prediction) competition. It has a few features such as being scalable, but most importantly, it super-imposed a regularization to prevent model over-fitting. In practice, however,  it can happen that though lowest RMSE or highest R-squared with XGBoost were obtained compared to random forest or gradient boosting, the spatial patterns they predicts look a lot worse than random forest, or simpler linear model with regularization, e.g. Lasso. It looks to predict lots of artefacts! We further compared various model prediction results with mobile sensor measurements (with a typical Dutch transporting tool "bakfiets", which is a cargo-bike), and found XGBoost matches the least with the mobile sensor measurements. XGBoost can do better, but the key is to look at the prediction patterns already at the model hyperparameter tunning stage![here is  an example]](https://lumeng0312.shinyapps.io/xgboost/?_ga=2.179522658.79817579.1592385947-986486774.1592216474).       
 
-```{r}
-inde_var = inde_var%>%ungroup()%>%dplyr::select(-country)
-```
+
+
+
 
 #### Hyperparameter optimization
 
-[Here is an example](https://lumeng0312.shinyapps.io/xgboost/?_ga=2.179522658.79817579.1592385947-986486774.1592216474) of the effects of hyperparameters on cross-validation results and prediction patterns of XGboost. 
-   
 - Note
 
 * Here I only show how to tune hyper-parameters, detailed description and what hyper-parameter I tunned are in "Glo_hyp_tun.Rmb"
@@ -256,6 +257,11 @@ inde_var = inde_var%>%ungroup()%>%dplyr::select(-country)
 Let's come back to the model tunning, here I am showing to do this with the R package Caret, there are other packages,such as mlr3, but but Caret seems to be well-maintained, and is sufficient in most cases, and you can simply use ggplot on the caret::train object. All we need is to custom a tunning grid for tunning and control the resampling method.
 
 Firstly, Random Forest, the most important hyperparameter are mtry - the number of variables sampled at each split, and min.node.size - the minimum number of observations at the leaf. The number of trees is also a hyperparameter, but it can be set as high as you like, as it will not cause model over-fitting as each tree is grown independently, which is different from boosting, which grows trees subsequently. Of course, you can also tune it.   
+
+
+```{r}
+inde_var = inde_var%>%ungroup()%>%dplyr::select(-country)
+```
 
 [Try after the workshop as it takes quite a while; set the "eval =T"]
 
@@ -275,7 +281,7 @@ In the same way, we can tune GBM [ Try after the workshop as it takes quite a wh
 * Note: we can use "bernoulli" for binary data and "gaussian" for continuous. 
 
 ```{r TuneGBM, eval=F, include=FALSE}
-gbmGrid <- expand.grid(interaction.depth=c(4, 5, 6), n.trees = ( 5:8)*150,
+gbmGrid <- expand.grid(interaction.depth=c(4, 5, 6), n.trees = (5:8)*150,
                          shrinkage=c( 0.05, 0.03, 0.01 ),
                          n.minobsinnode=c(5 ))
  
@@ -319,6 +325,13 @@ train(value_mean~., data=inde_var, method="xgbTree", trControl=trainControl, tun
  
 ```
 
+### Running the models 
+
+Predictor variables to include (regex style, string to match):
+
+```{r}
+vastring = "road|nightlight|population|temp|wind|trop|indu|elev"
+```
 
 #### Regression tree
 
@@ -421,7 +434,7 @@ plot(gbm1, i.var = 2:3)
  
  
 #### Emsemble multiple models
-caretEnsemble is computational intensive. Can customize using the "emsemble.R"
+caretEnsemble is computational intensive. Can customize using the "/others/emsemble.R"
 
 ```{r ensemble, eval=FALSE}
 #install.packages("caretEnsemble")
