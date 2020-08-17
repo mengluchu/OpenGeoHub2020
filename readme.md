@@ -1,5 +1,7 @@
 ## Introduction
 
+[course slides and notes](https://docs.google.com/presentation/d/1v2HKgpTlg_xQgBobhaSZnZ-a1zc9ktLi9ivj9oC8LcU/edit?usp=sharing)
+
 In many middle and low-income countries, air pollution monitor networks are deficient or nonexisting, but in these countries people are the most vulnerable to air pollution, with young children suffer the most. The goal is to integrate information from ground station measurements, satellite measurements and geospatial predictors, to estimate global air quality, at a high resolution (< 100 m). Challenges are:
 1. Modelling the geospatially heterogenious relationships between predictors and pollutants. 
 2. Assimilating Geospatial predictors, ground sensor and satellite instruments measured pollutants from various resolutions and sources.
